@@ -154,3 +154,60 @@ def test_sarif_report_formatter() -> None:
         assert Path(sarif_file).exists()
         loaded = json.loads(Path(sarif_file).read_text(encoding="utf-8"))
         assert loaded["version"] == "2.1.0"
+
+
+def test_html_report_formatter_disable_principles() -> None:
+    loc = SourceLocation(file_path="src/UserService.php", line=10)
+    ev = Evidence(description="God Class violation", weight=0.8, rule_code="SRP_GOD_CLASS", location=loc)
+    principle_det = Detection(
+        pattern_type=PatternType.SINGLE_RESPONSIBILITY,
+        pattern_category=PatternCategory.PRINCIPLE,
+        target_name="UserService",
+        target_kind="class",
+        confidence=Confidence.from_evidences([ev]),
+        primary_location=loc,
+        evidences=[ev],
+    )
+    gof_det = Detection(
+        pattern_type=PatternType.SINGLETON,
+        pattern_category=PatternCategory.CREATIONAL,
+        target_name="DatabaseConnection",
+        target_kind="class",
+        confidence=Confidence.from_evidences([ev]),
+        primary_location=loc,
+        evidences=[ev],
+    )
+    report = DetectionReport(
+        project_path="src",
+        scanned_files_count=1,
+        detections=[principle_det, gof_det],
+        elapsed_seconds=0.01,
+    )
+
+    # 1. With principles (default)
+    formatter_with = HtmlReportFormatter(include_principles=True)
+    html_with = formatter_with.format(report)
+    assert "SINGLE_RESPONSIBILITY" in html_with
+    assert "SINGLETON" in html_with
+    assert "Principles &amp; SOLID" in html_with or "Principles & SOLID" in html_with
+
+    # 2. Without principles (disabled)
+    formatter_without = HtmlReportFormatter(include_principles=False)
+    html_without = formatter_without.format(report)
+    assert "SINGLE_RESPONSIBILITY" not in html_without
+    assert "SINGLETON" in html_without
+    assert "Principles &amp; SOLID" not in html_without
+    assert "Principles & SOLID" not in html_without
+
+
+def test_cli_no_principles_option() -> None:
+    from typer.testing import CliRunner
+    from pattern_detector.adapters.inbound.cli.main import app
+
+    runner = CliRunner()
+    # Scan with --no-principles option
+    result = runner.invoke(app, ["scan", "examples/php_samples/PrinciplesDemo.php", "--no-principles"])
+    assert result.exit_code == 0
+    assert "SINGLE_RESPONSIBILITY" not in result.stdout
+    assert "OPEN_CLOSED" not in result.stdout
+

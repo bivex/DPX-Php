@@ -154,11 +154,13 @@ class ScanningService(ScannerPort, DetectorPort, DataFlowPort):
         return report
 
     def _filter_detections(self, detections: list[Detection], opts: ScanOptions) -> list[Detection]:
-        if opts.min_confidence <= 0.0 and not opts.enabled_patterns:
+        if opts.min_confidence <= 0.0 and not opts.enabled_patterns and opts.include_principles:
             return detections
 
         filtered: list[Detection] = []
         for d in detections:
+            if not opts.include_principles and d.pattern_category.value == "principle":
+                continue
             if d.confidence.score < opts.min_confidence:
                 continue
             if opts.enabled_patterns and d.pattern_type.value not in opts.enabled_patterns:

@@ -21,6 +21,7 @@ class ScanOptions:
     output_html_path: str | None = None
     output_markdown_path: str | None = None
     output_sarif_path: str | None = None
+    include_principles: bool = True
     verbose: bool = False
 
 

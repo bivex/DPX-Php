@@ -327,6 +327,7 @@ _HTML_DASHBOARD_TEMPLATE: str = """<!DOCTYPE html>
         </div>
 
         <!-- Action Status Sub-Tabs Bar -->
+        <!-- Action Status Sub-Tabs Bar -->
         <div class="ui inverted segment" style="background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; margin-bottom: 16px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
             <div style="font-size: 13px; color: #94a3b8; font-weight: 600;">
                 <i class="filter icon" style="color: #38bdf8;"></i> Findings Action Filter:
@@ -343,6 +344,11 @@ _HTML_DASHBOARD_TEMPLATE: str = """<!DOCTYPE html>
                 </button>
                 <button class="ui button status-filter-btn" data-status="pattern" style="color: #38bdf8 !important;">
                     <i class="cube icon" style="color: #38bdf8;"></i> 🔷 Design Patterns <span class="ui mini teal label" id="statusCountPattern">{total_patterns}</span>
+                </button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button id="principlesToggleBtn" class="ui mini inverted basic button" onclick="togglePrinciplesVisibility()" style="border-color: #4f46e5; color: #a5b4fc; font-weight: 600;">
+                    <i class="shield alternate icon" style="color: #818cf8;"></i> <span id="principlesToggleText">Hide SOLID & Principles</span>
                 </button>
             </div>
         </div>
@@ -384,12 +390,33 @@ _HTML_DASHBOARD_TEMPLATE: str = """<!DOCTYPE html>
 
         let selectedCategory = 'all';
         let selectedStatus = 'all';
+        let hidePrinciples = false;
+
+        function togglePrinciplesVisibility() {{
+            hidePrinciples = !hidePrinciples;
+            const btn = document.getElementById('principlesToggleBtn');
+            const btnText = document.getElementById('principlesToggleText');
+            if (hidePrinciples) {{
+                btn.classList.remove('basic');
+                btn.classList.add('purple');
+                btnText.textContent = 'Show SOLID & Principles';
+            }} else {{
+                btn.classList.remove('purple');
+                btn.classList.add('basic');
+                btnText.textContent = 'Hide SOLID & Principles';
+            }}
+            updateStatusCounts();
+            filterCards();
+        }}
 
         function updateStatusCounts() {{
             let total = 0, violations = 0, adherences = 0, patterns = 0;
             cards.forEach(card => {{
                 const category = card.dataset.category || '';
                 const status = card.dataset.status || '';
+                if (hidePrinciples && category === 'principle') {{
+                    return;
+                }}
                 if (selectedCategory === 'all' || category === selectedCategory) {{
                     total++;
                     if (status === 'violation') violations++;
@@ -413,6 +440,11 @@ _HTML_DASHBOARD_TEMPLATE: str = """<!DOCTYPE html>
                 const category = card.dataset.category || '';
                 const target = card.dataset.target || '';
                 const status = card.dataset.status || '';
+
+                if (hidePrinciples && category === 'principle') {{
+                    card.style.display = 'none';
+                    return;
+                }}
 
                 const matchesCategory = (selectedCategory === 'all' || category === selectedCategory);
                 const matchesStatus = (selectedStatus === 'all' || status === selectedStatus);
@@ -453,6 +485,11 @@ _HTML_DASHBOARD_TEMPLATE: str = """<!DOCTYPE html>
         statusBtns.forEach(btn => {{
             btn.addEventListener('click', () => {{
                 statusBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedStatus = btn.dataset.status;
+                filterCards();
+            }});
+        }});
                 btn.classList.add('active');
                 selectedStatus = btn.dataset.status;
                 filterCards();
@@ -529,16 +566,33 @@ _HTML_DASHBOARD_TEMPLATE: str = """<!DOCTYPE html>
 class HtmlReportFormatter(ReportFormatterPort):
     """Renders a standalone, responsive, interactive Semantic UI (Fomantic-UI) HTML dashboard for DetectionReport."""
 
-    def format(self, report: DetectionReport, verbose: bool = False) -> str:
-        counts = self._calculate_status_counts(report.detections)
-        cards_html = "".join(self._render_cards_list(report.detections))
-        category_filters = "".join(self._render_category_filters(report))
+    def __init__(self, include_principles: bool = True) -> None:
+        self.include_principles = include_principles
+
+    def format(
+        self,
+        report: DetectionReport,
+        verbose: bool = False,
+        include_principles: bool | None = None,
+    ) -> str:
+        inc_p = self.include_principles if include_principles is None else include_principles
+        detections = (
+            [d for d in report.detections if d.pattern_category != PatternCategory.PRINCIPLE]
+            if not inc_p
+            else report.detections
+        )
+
+        counts = self._calculate_status_counts(detections)
+        cards_html = "".join(self._render_cards_list(detections))
+        category_filters = "".join(self._render_category_filters(detections))
         project_name = self._resolve_project_name(report.project_path)
-        llm_arch_map = self._build_llm_architectural_map(report, counts, project_name)
+        llm_arch_map = self._build_llm_architectural_map(
+            report, counts, project_name, detections=detections
+        )
 
         return _HTML_DASHBOARD_TEMPLATE.format(
             project_name=project_name,
-            total_detections=report.total_detections_count,
+            total_detections=len(detections),
             total_violations=counts["violation"],
             total_adherences=counts["adherence"],
             total_patterns=counts["pattern"],
@@ -551,38 +605,65 @@ class HtmlReportFormatter(ReportFormatterPort):
         )
 
     def _build_llm_architectural_map(
-        self, report: DetectionReport, counts: dict[str, int], project_name: str
+        self,
+        report: DetectionReport,
+        counts: dict[str, int],
+        project_name: str,
+        detections: list[Any] | None = None,
     ) -> str:
         """Constructs structured, token-efficient Markdown prompt for LLM architecture analysis."""
+        dets = report.detections if detections is None else detections
         lines = [
             "# 🏛️ Codebase Architecture Map & Refactoring Analysis",
             "",
             "## 📌 Project Overview",
             f"- **Target Project:** `{project_name}`",
             f"- **Files Scanned:** `{report.scanned_files_count}`",
-            f"- **Total Architecture Findings:** `{report.total_detections_count}`",
+            f"- **Total Architecture Findings:** `{len(dets)}`",
             f"- **⚠️ Violations / Code Smells (Action Required):** `{counts.get('violation', 0)}`",
             f"- **🔷 Design Patterns Identified:** `{counts.get('pattern', 0)}`",
-            f"- **✅ SOLID & Clean Code Adherences:** `{counts.get('adherence', 0)}`",
-            "",
-            "---",
-            "",
-            "## 🎯 Task for AI / LLM Architect",
-            "> **Prompt Instructions:**",
-            "> 1. **Analyze Modularity & Coupling:** Review the package breakdown, design pattern distribution, and high-coupling components.",
-            "> 2. **Prioritize Top Architectural Violations:** Review the listed code smells (KISS complexity, Law of Demeter, Fan-Out, God Objects, etc.) and highlight the top 3-5 highest-risk issues.",
-            "> 3. **Provide Concrete Refactoring Suggestions:** For each top issue, propose architectural patterns (e.g. Strategy, Facade, Composite, Observer) and provide concise PHP code examples/signatures.",
-            "> 4. **SOLID Improvements:** Explain how to resolve the identified Open-Closed, Liskov, and Demeter issues without over-engineering.",
-            "",
-            "---",
         ]
+
+        if counts.get("violation", 0) > 0 or counts.get("adherence", 0) > 0:
+            lines.extend(
+                [
+                    f"- **⚠️ Violations / Code Smells (Action Required):** `{counts.get('violation', 0)}`",
+                    f"- **✅ SOLID & Clean Code Adherences:** `{counts.get('adherence', 0)}`",
+                    "",
+                    "---",
+                    "",
+                    "## 🎯 Task for AI / LLM Architect",
+                    "> **Prompt Instructions:**",
+                    "> 1. **Analyze Modularity & Coupling:** Review the package breakdown, design pattern distribution, and high-coupling components.",
+                    "> 2. **Prioritize Top Architectural Violations:** Review the listed code smells and highlight the top 3-5 highest-risk issues.",
+                    "> 3. **Provide Concrete Refactoring Suggestions:** For each top issue, propose architectural patterns (e.g. Strategy, Facade, Composite, Observer) and provide concise PHP code examples/signatures.",
+                    "> 4. **SOLID Improvements:** Explain how to resolve the identified issues without over-engineering.",
+                    "",
+                    "---",
+                ]
+            )
+        else:
+            lines.extend(
+                [
+                    "",
+                    "---",
+                    "",
+                    "## 🎯 Task for AI / LLM Architect",
+                    "> **Prompt Instructions:**",
+                    "> 1. **Analyze Modularity & Structure:** Review the package breakdown and design pattern distribution.",
+                    "> 2. **Architecture Evaluation:** Assess the usage of design patterns (e.g. Factory, Strategy, Pipeline, Decorator).",
+                    "> 3. **Refactoring & Extensions:** Suggest opportunities for cleaner component decoupling and architectural improvements.",
+                    "",
+                    "---",
+                ]
+            )
 
         patterns_by_type: dict[str, list[Any]] = {}
         violations_by_type: dict[str, list[Any]] = {}
         adherences_by_type: dict[str, list[Any]] = {}
         file_to_findings: dict[str, list[str]] = {}
 
-        for d in report.detections:
+        for d in dets:
             status = self._classify_detection_status(d)
             ptype = d.pattern_type.value.upper()
             if status == "pattern":
@@ -613,9 +694,9 @@ class HtmlReportFormatter(ReportFormatterPort):
         lines.append("---")
         lines.append("")
 
-        # 2. Violations & Code Smells
-        lines.append(f"## ⚠️ Architectural Violations & Code Smells ({counts.get('violation', 0)} instances)")
+        # 2. Violations & Code Smells (only if any violations exist)
         if violations_by_type:
+            lines.append(f"## ⚠️ Architectural Violations & Code Smells ({counts.get('violation', 0)} instances)")
             for vtype, items in sorted(violations_by_type.items()):
                 lines.append(f"### Violation: `{vtype}` ({len(items)} occurrences)")
                 for d in items[:30]:
@@ -628,15 +709,12 @@ class HtmlReportFormatter(ReportFormatterPort):
                 if len(items) > 30:
                     lines.append(f"  *(... and {len(items) - 30} more {vtype} occurrences)*")
             lines.append("")
-        else:
-            lines.append("✅ *Zero violations detected! All evaluated code adheres to clean architecture principles.*\n")
+            lines.append("---")
+            lines.append("")
 
-        lines.append("---")
-        lines.append("")
-
-        # 3. Clean Adherences
-        lines.append(f"## ✅ SOLID Principles & Clean Adherences ({counts.get('adherence', 0)} instances)")
+        # 3. Clean Adherences (only if any adherences exist)
         if adherences_by_type:
+            lines.append(f"## ✅ SOLID Principles & Clean Adherences ({counts.get('adherence', 0)} instances)")
             for atype, items in sorted(adherences_by_type.items()):
                 lines.append(f"### Principle: `{atype}` ({len(items)} instances)")
                 for d in items[:25]:
@@ -644,10 +722,8 @@ class HtmlReportFormatter(ReportFormatterPort):
                     loc_str = f" in `{loc}`" if loc else ""
                     lines.append(f"- **{d.target_name}** ({d.confidence.percentage_str}){loc_str} - {d.summary}")
             lines.append("")
-        else:
-            lines.append("*None recorded.*\n")
-
-        lines.append("---")
+            lines.append("---")
+            lines.append("")
         lines.append("")
 
         # 4. Module & File Hotspots Distribution
@@ -820,10 +896,20 @@ class HtmlReportFormatter(ReportFormatterPort):
         )
         return f'<div style="margin-top: 10px; font-size: 12px; color: #94a3b8;"><strong>Related Locations:</strong><div style="margin-top: 4px;">{rel_items}</div></div>'
 
-    def _render_category_filters(self, report: DetectionReport) -> list[str]:
+    def _render_category_filters(self, detections: list[Any] | DetectionReport) -> list[str]:
+        if isinstance(detections, DetectionReport):
+            dets = detections.detections
+        else:
+            dets = detections
+
+        cat_counts: dict[str, int] = {}
+        for d in dets:
+            cat_val = d.pattern_category.value
+            cat_counts[cat_val] = cat_counts.get(cat_val, 0) + 1
+
         category_filters = []
         for cat_enum, style in CATEGORY_STYLES.items():
-            count = report.summary_by_category.get(cat_enum.value, 0)
+            count = cat_counts.get(cat_enum.value, 0)
             if count > 0:
                 category_filters.append(
                     f"""

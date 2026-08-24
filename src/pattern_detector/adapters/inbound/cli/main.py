@@ -116,6 +116,13 @@ def scan(
             help="AST parser engine to use: 'native' (default, ultrafast) or 'antlr' (formal ANTLR4 grammar).",
         ),
     ] = "native",
+    no_principles: Annotated[
+        bool,
+        typer.Option(
+            "--no-principles",
+            help="Exclude SOLID principles and clean code rules from the analysis and HTML report (GoF & Architecture patterns only).",
+        ),
+    ] = False,
 ) -> None:
     """Scan a PHP source code file or directory for software design patterns."""
     target_path = str(Path(path).resolve())
@@ -127,6 +134,7 @@ def scan(
         output_html_path=html_output,
         output_markdown_path=markdown_output,
         output_sarif_path=sarif_output,
+        include_principles=not no_principles,
         verbose=verbose,
     )
 

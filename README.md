@@ -55,8 +55,8 @@ uv run dpx scan /path/to/php/project
 # Scan with formal ANTLR4 PHP grammar parser
 uv run dpx scan /path/to/php/project --parser antlr
 
-# Export interactive HTML dashboard
-uv run dpx scan /path/to/php/project -H reports/dashboard.html
+# Export interactive HTML dashboard (GoF & Architectural patterns only, no SOLID/Principles)
+uv run dpx scan /path/to/php/project -H reports/dashboard.html --no-principles
 
 # Generate LLM architectural map (copy-paste to Claude / ChatGPT / Gemini)
 uv run dpx scan /path/to/php/project --llm
