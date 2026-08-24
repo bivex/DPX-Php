@@ -151,7 +151,10 @@ class MultimethodDispatchRule(BasePatternRule):
                     has_registration = True
                     registration_count += 1
 
-        # Score threshold: must have at least 2 indicators to qualify
+        # Score threshold: must have actual handler map mechanics (fields, dynamic lookup, or registration)
+        if not (len(dispatcher_fields) > 0 or has_dynamic_lookup or has_registration):
+            return None
+
         indicators = sum([
             is_dispatcher_named,
             len(dispatcher_fields) > 0,

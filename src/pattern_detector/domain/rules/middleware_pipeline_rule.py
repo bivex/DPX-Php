@@ -198,7 +198,24 @@ class MiddlewarePipelineRule(BasePatternRule):
             if any(k in field.lower() for k in ("middleware", "stack", "pipeline", "layers", "handlers")):
                 assembly_fields.append(field)
 
-        if len(assembly_calls) < 2 and not (assembly_fields and is_pipeline_named):
+        # Skip obvious non-pipeline classes (repositories, models, migrations, etc.) unless explicitly named pipeline
+        if any(rec.name.endswith(suffix) for suffix in ("Repository", "Model", "Migration", "Seeder", "Resource", "Request", "Response")):
+            if not is_pipeline_named:
+                return None
+
+        # Require stronger correlation: either pipeline name + calls/fields, or assembly fields + calls, or distinct middleware calls
+        dedicated_pipeline_calls = [
+            c for c in assembly_calls
+            if c.split("->")[-1].split("::")[-1].lower() in {"pipe", "through", "middleware", "addmiddleware"}
+        ]
+
+        is_candidate = (
+            (is_pipeline_named and (assembly_fields or len(assembly_calls) >= 1))
+            or (assembly_fields and len(assembly_calls) >= 1)
+            or len(dedicated_pipeline_calls) >= 2
+        )
+
+        if not is_candidate:
             return None
 
         evidences: list[Evidence] = []
@@ -227,6 +244,9 @@ class MiddlewarePipelineRule(BasePatternRule):
                 location=rec.location,
                 code_suffix="PIPELINE_ASSEMBLY_CALLS",
             ))
+
+        if not evidences or sum(e.weight for e in evidences) < 0.45:
+            return None
 
         return self.create_detection(
             target_name=rec.name,
