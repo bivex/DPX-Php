@@ -334,36 +334,46 @@ class CodeModel:
         graph: dict[str, set[str]] = {ns_name: set() for ns_name in self.namespaces}
         all_ns_names = set(self.namespaces.keys())
 
-        # Precompute lookup index for imported symbol -> namespace name
-        symbol_to_ns: dict[str, str] = {}
+        # Precompute exact lookup index for fully qualified record/protocol -> namespace name
+        qualified_symbol_to_ns: dict[str, str] = {}
         for other_name, other_ns in self.namespaces.items():
-            symbol_to_ns[other_name] = other_name
-            if other_ns.file_path:
-                other_base = os.path.splitext(os.path.basename(other_ns.file_path))[0]
-                symbol_to_ns[other_base] = other_name
+            qualified_symbol_to_ns[other_name] = other_name
             for rec_name in other_ns.records:
-                symbol_to_ns[rec_name] = other_name
+                qualified_symbol_to_ns[f"{other_name}.{rec_name}"] = other_name
+            for proto_name in other_ns.protocols:
+                qualified_symbol_to_ns[f"{other_name}.{proto_name}"] = other_name
 
         for ns_name, ns in self.namespaces.items():
-            self._connect_import_dependencies(ns_name, ns, graph, symbol_to_ns)
+            self._connect_import_dependencies(ns_name, ns, graph, all_ns_names, qualified_symbol_to_ns)
             self._connect_call_dependencies(ns_name, ns, all_ns_names, graph)
 
         return graph
 
     def _connect_import_dependencies(
-        self, ns_name: str, ns: NamespaceModel, graph: dict[str, set[str]], symbol_to_ns: dict[str, str]
+        self,
+        ns_name: str,
+        ns: NamespaceModel,
+        graph: dict[str, set[str]],
+        all_ns_names: set[str],
+        qualified_symbol_to_ns: dict[str, str],
     ) -> None:
         all_imported_symbols = set(ns.requires) | set(ns.imports)
         for raw_sym in all_imported_symbols:
-            if raw_sym in symbol_to_ns:
-                target_ns = symbol_to_ns[raw_sym]
+            if not raw_sym:
+                continue
+            # 1. Direct namespace match
+            if raw_sym in all_ns_names and raw_sym != ns_name:
+                graph[ns_name].add(raw_sym)
+            # 2. Fully qualified record/protocol match
+            elif raw_sym in qualified_symbol_to_ns:
+                target_ns = qualified_symbol_to_ns[raw_sym]
                 if target_ns != ns_name:
                     graph[ns_name].add(target_ns)
-            sym_clean = os.path.splitext(os.path.basename(raw_sym))[0]
-            if sym_clean in symbol_to_ns:
-                target_ns = symbol_to_ns[sym_clean]
-                if target_ns != ns_name:
-                    graph[ns_name].add(target_ns)
+            # 3. Parent namespace match (e.g. Illuminate.Auth.Access.Gate -> Illuminate.Auth.Access)
+            elif "." in raw_sym:
+                parent_ns = ".".join(raw_sym.split(".")[:-1])
+                if parent_ns in all_ns_names and parent_ns != ns_name:
+                    graph[ns_name].add(parent_ns)
 
     def _connect_call_dependencies(
         self, ns_name: str, ns: NamespaceModel, all_ns_names: set[str], graph: dict[str, set[str]]
