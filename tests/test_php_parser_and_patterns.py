@@ -331,3 +331,57 @@ def test_all_37_rules_registered_and_executable() -> None:
     assert len(rule_types) == 37
     assert len(rule_types) == len(PatternType)
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ANTLR4 PHP PARSER ADAPTER TESTS
+# ─────────────────────────────────────────────────────────────────────────────
+
+def test_antlr_php_parser_adapter_extracts_structures() -> None:
+    from pattern_detector.adapters.outbound.php_antlr import AntlrPhpParserAdapter
+
+    code = """<?php
+namespace App\\Services;
+
+use App\\Contracts\\UserInterface;
+
+interface Greeter {
+    public function greet(string $name): string;
+}
+
+class WelcomeService implements Greeter, UserInterface {
+    private string $appName = 'Demo';
+
+    public function __construct(private string $author) {}
+
+    public function greet(string $name): string {
+        return 'Hello ' . $name;
+    }
+}
+"""
+    adapter = AntlrPhpParserAdapter()
+    ns = adapter.parse_source(code, "WelcomeService.php")
+
+    assert ns.name == "App.Services"
+    assert "Greeter" in ns.protocols
+    assert "WelcomeService" in ns.records
+    assert "appName" in ns.records["WelcomeService"].fields
+    assert "author" in ns.records["WelcomeService"].fields
+    assert "Greeter" in ns.records["WelcomeService"].implemented_protocols
+
+
+def test_container_and_cli_antlr_parser_switch() -> None:
+    from pattern_detector.bootstrap.container import create_container
+    from typer.testing import CliRunner
+    from pattern_detector.adapters.inbound.cli.main import app
+
+    container_antlr = create_container(parser_type="antlr")
+    assert container_antlr.parser.__class__.__name__ == "AntlrPhpParserAdapter"
+
+    container_native = create_container(parser_type="native")
+    assert container_native.parser.__class__.__name__ == "PhpParserAdapter"
+
+    runner = CliRunner()
+    result = runner.invoke(app, ["scan", "examples/php_samples/CreationalPatternsDemo.php", "--parser", "antlr"])
+    assert result.exit_code == 0
+
+

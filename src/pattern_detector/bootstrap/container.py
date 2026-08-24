@@ -17,6 +17,7 @@ from pattern_detector.adapters.outbound.persistence import (
     SarifReportFormatter,
     SarifResultRepository,
 )
+from pattern_detector.adapters.outbound.php_antlr import AntlrPhpParserAdapter
 from pattern_detector.adapters.outbound.php_ast import PhpParserAdapter
 from pattern_detector.application.services.scanning_service import ScanningService
 from pattern_detector.domain.rules import get_default_rules
@@ -39,10 +40,16 @@ class Container:
     and application use cases adhering to Hexagonal Architecture.
     """
 
-    def __init__(self, **components: Any) -> None:
+    def __init__(self, parser_type: str = "native", **components: Any) -> None:
         # Outbound Driven Adapters
         self.source_provider: SourceProviderPort = components.get("source_provider") or FileSourceProvider()
-        self.parser: ParserPort = components.get("parser") or PhpParserAdapter()
+
+        if "parser" in components:
+            self.parser: ParserPort = components["parser"]
+        elif parser_type.lower() == "antlr":
+            self.parser = AntlrPhpParserAdapter()
+        else:
+            self.parser = PhpParserAdapter()
 
         self.html_formatter: ReportFormatterPort = components.get("html_formatter") or HtmlReportFormatter()
         self.data_flow_html_formatter: DataFlowHtmlFormatter = (
@@ -91,6 +98,6 @@ class Container:
         return self.report_formatter
 
 
-def create_container() -> Container:
-    """Create a default production container."""
-    return Container()
+def create_container(parser_type: str = "native") -> Container:
+    """Create a production container with chosen parser engine ('native' or 'antlr')."""
+    return Container(parser_type=parser_type)

@@ -5,6 +5,7 @@ description = "Design Patterns X for PHP (7.4 - 8.4+) - Multi-Paradigm Hexagonal
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "antlr4-python3-runtime>=4.13.0,<4.14.0",
     "pydantic>=2.10.0",
     "rich>=13.0.0",
     "typer>=0.12.0",

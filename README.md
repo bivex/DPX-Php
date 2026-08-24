@@ -49,14 +49,34 @@ git clone https://github.com/bivex/DPX-Php.git
 cd DPX-Php
 uv sync
 
-# Scan a PHP project
+# Scan a PHP project with fast native parser (default)
 uv run dpx scan /path/to/php/project
+
+# Scan with formal ANTLR4 PHP grammar parser
+uv run dpx scan /path/to/php/project --parser antlr
 
 # Export interactive HTML dashboard
 uv run dpx scan /path/to/php/project -H reports/dashboard.html
 
 # Generate LLM architectural map (copy-paste to Claude / ChatGPT / Gemini)
 uv run dpx scan /path/to/php/project --llm
+```
+
+---
+
+## ⚙️ Parser Engines (Pluggable via Hexagonal Ports)
+
+| Engine | Flag | Description | Performance |
+|---|---|---|---|
+| **Native Regex & Balanced Braces** | `--parser native` *(default)* | Pure Python, 0 external runtime deps, fault-tolerant on all PHP dialects | **270–1 400 files/s** |
+| **ANTLR4 PHP Grammar** | `--parser antlr` | Formal AST/CST conforming strictly to PHP specification (`PHPLexer.g4` & `PHPParser.g4`) | **10–50 files/s** |
+
+---
+
+## 🧪 Testing
+
+```bash
+uv run pytest -v
 ```
 
 ---

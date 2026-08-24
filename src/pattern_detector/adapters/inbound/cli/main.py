@@ -108,10 +108,18 @@ def scan(
             help="Enable verbose output.",
         ),
     ] = False,
+    parser: Annotated[
+        str,
+        typer.Option(
+            "--parser",
+            "-P",
+            help="AST parser engine to use: 'native' (default, ultrafast) or 'antlr' (formal ANTLR4 grammar).",
+        ),
+    ] = "native",
 ) -> None:
     """Scan a PHP source code file or directory for software design patterns."""
     target_path = str(Path(path).resolve())
-    container = create_container()
+    container = create_container(parser_type=parser)
     options = ScanOptions(
         min_confidence=min_confidence,
         enabled_patterns=pattern or [],
