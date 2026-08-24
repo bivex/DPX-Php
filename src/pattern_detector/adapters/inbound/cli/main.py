@@ -109,7 +109,7 @@ def scan(
         ),
     ] = False,
 ) -> None:
-    """Scan a Python source code file or directory for software design patterns."""
+    """Scan a PHP source code file or directory for software design patterns."""
     target_path = str(Path(path).resolve())
     container = create_container()
     options = ScanOptions(
@@ -143,7 +143,7 @@ def _handle_terminal_scan(
     insights: bool,
 ) -> None:
     scanner = container.get_scanner()
-    with console.status(f"[cyan]Scanning [bold]{path}[/bold] using ANTLR parser & Domain Rules...[/cyan]"):
+    with console.status(f"[cyan]Scanning [bold]{path}[/bold] using Native PHP parser & Domain Rules...[/cyan]"):
         report = scanner.scan_path(target_path, options=options)
 
     container.report_formatter.render_to_console(report, console, verbose=options.verbose)  # type: ignore[attr-defined]
@@ -154,7 +154,7 @@ def _handle_terminal_scan(
 @app.command(name="rules")
 @app.command(name="catalog")
 def catalog() -> None:
-    """List all available software design patterns supported by DPX-Py."""
+    """List all available software design patterns supported by DPX-Php."""
     table = Table(
         title="📐 Registered Design Pattern Rules & Heuristics",
         border_style="cyan",
@@ -208,7 +208,7 @@ def dataflow(
         typer.Option(
             "--path",
             "-p",
-            help="File or directory path containing Python source code.",
+            help="File or directory path containing PHP source code.",
         ),
     ] = ".",
     all_vars: Annotated[
@@ -452,15 +452,15 @@ def _render_insights_to_console(
 
         content = "\n".join(body_lines)
         if ins.code_snippet:
-            syntax_block = Syntax(ins.code_snippet, "python", theme="monokai", line_numbers=False)
+            syntax_block = Syntax(ins.code_snippet, "php", theme="monokai", line_numbers=False)
             panel_content = Panel(
                 f"{content}\n",
                 title=f"#{i} {sev_badge} [bold white]{ins.title}[/bold white]",
                 border_style=sev_color,
-                subtitle="[dim]Python Recommended Implementation[/dim]",
+                subtitle="[dim]PHP Recommended Implementation[/dim]",
             )
             console.print(panel_content)
-            console.print(Panel(syntax_block, border_style="dim", title="[dim]Suggested Python Code[/dim]"))
+            console.print(Panel(syntax_block, border_style="dim", title="[dim]Suggested PHP Code[/dim]"))
         else:
             console.print(
                 Panel(
@@ -506,13 +506,13 @@ def insights_cmd(
 def info() -> None:
     """Display architecture info and supported grammar configurations."""
     info_text = (
-        "[bold magenta]Pattern Scanner & Detector for Python (Hexagonal DDD Architecture)[/bold magenta]\n\n"
+        "[bold magenta]Pattern Scanner & Detector for PHP (Hexagonal DDD Architecture)[/bold magenta]\n\n"
         "• [bold cyan]Core Domain:[/bold cyan] Agnostic CodeModel, Evidence & Confidence Score Engine, Specification Rules\n"
         "• [bold cyan]Inbound Ports:[/bold cyan] ScannerPort, DetectorPort, DataFlowPort\n"
         "• [bold cyan]Outbound Ports:[/bold cyan] ParserPort, SourceProviderPort, ResultRepositoryPort, ReportFormatterPort\n"
-        "• [bold cyan]Active AST Adapter:[/bold cyan] Native Python AST Parser (Standard Library ast)\n"
-        "• [bold cyan]Supported Extensions:[/bold cyan] .py, .pyi\n"
-        "• [bold cyan]Features:[/bold cyan] 23/23 GoF Patterns, SOLID Principles, Data Flow Out / In Analysis, Coder Insights\n"
+        "• [bold cyan]Active AST Adapter:[/bold cyan] Native PHP AST Parser (Regex & Balanced Braces)\n"
+        "• [bold cyan]Supported Extensions:[/bold cyan] .php, .phtml, .inc\n"
+        "• [bold cyan]Features:[/bold cyan] 23/23 GoF Patterns, 10 SOLID Principles, PSR-15 Middleware, Multimethod Dispatch, Data Flow, Coder Insights\n"
     )
     console.print(Panel(info_text, title="ℹ System Info", border_style="cyan"))
 

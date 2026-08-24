@@ -230,7 +230,7 @@ _DATAFLOW_HTML_TEMPLATE = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{page_title} - DPX-Py Data Flow</title>
+    <title>{page_title} - DPX-Php Data Flow</title>
     <!-- Fomantic-UI (Semantic UI) CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.css">
     <!-- Cytoscape.js Core & Layout Engines -->
@@ -460,7 +460,7 @@ _DATAFLOW_HTML_TEMPLATE = """<!DOCTYPE html>
     <div class="ui inverted borderless menu">
         <div class="header item">
             <i class="project diagram icon" style="color: #38bdf8;"></i>
-            <span style="font-weight: 700; font-size: 15px; margin-left: 6px;">DPX-Py Data Flow Engine</span>
+            <span style="font-weight: 700; font-size: 15px; margin-left: 6px;">DPX-Php Data Flow Engine</span>
         </div>
         <div class="item">
             <span class="ui mini teal label"><i class="compass icon"></i> Direction: {direction}</span>

@@ -1,4 +1,4 @@
-"""Open/Closed Principle (OCP) Detection Rule for Python."""
+"""Open/Closed Principle (OCP) Detection Rule for PHP."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ _DYNAMIC_CAST_RE = re.compile(r"\bdynamic_cast\s*<\s*([A-Za-z0-9_:]+)\s*[\*&]\s*
 
 
 class OpenClosedPrincipleRule(BasePatternRule):
-    """Detects violations and adherences to the Open/Closed Principle (OCP) in Python.
+    """Detects violations and adherences to the Open/Closed Principle (OCP) in PHP.
 
     Indicators:
     - OCP Violation (Type-testing cascade): Method body containing cascades of `isinstance` / `type()` checks

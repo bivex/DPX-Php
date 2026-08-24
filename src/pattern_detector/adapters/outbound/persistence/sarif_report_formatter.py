@@ -31,9 +31,9 @@ class SarifReportFormatter:
                 {
                     "tool": {
                         "driver": {
-                            "name": "DPX-Py",
+                            "name": "DPX-Php",
                             "version": "1.0.0",
-                            "informationUri": "https://github.com/bivex/DPX-Py",
+                            "informationUri": "https://github.com/bivex/DPX-Php",
                             "rules": list(rule_map.values()),
                         }
                     },

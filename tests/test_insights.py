@@ -8,7 +8,7 @@ from pattern_detector.adapters.inbound.cli.main import app
 from pattern_detector.bootstrap.container import create_container
 
 
-def test_pattern_insights_generation_on_cpp_samples() -> None:
+def test_pattern_insights_generation_on_php_samples() -> None:
     container = create_container()
     examples_dir = str(Path(__file__).parent.parent / "examples" / "php_samples")
 

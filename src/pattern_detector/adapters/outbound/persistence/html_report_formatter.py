@@ -236,7 +236,7 @@ _HTML_DASHBOARD_TEMPLATE: str = """<!DOCTYPE html>
         <div class="ui container">
             <div class="header item">
                 <i class="shield alternate icon" style="color: #38bdf8;"></i>
-                <span style="font-weight: 700; font-size: 16px; margin-left: 6px;">DPX-Py Pattern Scanner Report</span>
+                <span style="font-weight: 700; font-size: 16px; margin-left: 6px;">DPX-Php Pattern Scanner Report</span>
             </div>
             <div class="item">
                 <span class="ui mini blue label"><i class="folder open outline icon"></i> {project_name}</span>
@@ -571,7 +571,7 @@ class HtmlReportFormatter(ReportFormatterPort):
             "> **Prompt Instructions:**",
             "> 1. **Analyze Modularity & Coupling:** Review the package breakdown, design pattern distribution, and high-coupling components.",
             "> 2. **Prioritize Top Architectural Violations:** Review the listed code smells (KISS complexity, Law of Demeter, Fan-Out, God Objects, etc.) and highlight the top 3-5 highest-risk issues.",
-            "> 3. **Provide Concrete Refactoring Suggestions:** For each top issue, propose architectural patterns (e.g. Strategy, Facade, Composite, Observer) and provide concise Python code examples/signatures.",
+            "> 3. **Provide Concrete Refactoring Suggestions:** For each top issue, propose architectural patterns (e.g. Strategy, Facade, Composite, Observer) and provide concise PHP code examples/signatures.",
             "> 4. **SOLID Improvements:** Explain how to resolve the identified Open-Closed, Liskov, and Demeter issues without over-engineering.",
             "",
             "---",

@@ -19,7 +19,7 @@ def test_cli_info_command() -> None:
     result = runner.invoke(app, ["info"])
     assert result.exit_code == 0
     assert "Hexagonal DDD Architecture" in result.stdout
-    assert "Python AST Parser" in result.stdout
+    assert "PHP AST Parser" in result.stdout
 
 
 def test_cli_scan_command() -> None:

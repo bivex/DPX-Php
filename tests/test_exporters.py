@@ -144,7 +144,7 @@ def test_sarif_report_formatter() -> None:
     sarif_data = json.loads(rendered)
     assert sarif_data["version"] == "2.1.0"
     assert len(sarif_data["runs"]) == 1
-    assert sarif_data["runs"][0]["tool"]["driver"]["name"] == "DPX-Py"
+    assert sarif_data["runs"][0]["tool"]["driver"]["name"] == "DPX-Php"
     assert len(sarif_data["runs"][0]["results"]) == 1
     assert sarif_data["runs"][0]["results"][0]["ruleId"] == "DPX-OBSERVER"
 

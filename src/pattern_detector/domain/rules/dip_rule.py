@@ -1,4 +1,4 @@
-"""Dependency Inversion Principle (DIP) Detection Rule for Python."""
+"""Dependency Inversion Principle (DIP) Detection Rule for PHP."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ from typing import Any
 
 
 class DependencyInversionRule(BasePatternRule):
-    """Detects violations and adherences to the Dependency Inversion Principle (DIP) in Python.
+    """Detects violations and adherences to the Dependency Inversion Principle (DIP) in PHP.
 
     Indicators:
     - DIP Adherence: High-level class depends on injected abstract base class / Protocol (types, constructor args).

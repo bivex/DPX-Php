@@ -1,4 +1,4 @@
-"""Singleton Pattern Detection Rule for Python."""
+"""Singleton Pattern Detection Rule for PHP."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from typing import Any
 
 
 class SingletonPatternRule(BasePatternRule):
-    """Detects Singleton Pattern instances in Python.
+    """Detects Singleton Pattern instances in PHP.
 
     Indicators:
     - Meyers' Singleton: Static member function returning reference to local static instance

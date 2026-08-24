@@ -1,4 +1,4 @@
-"""Domain service for generating semantic developer hints and insights from Patterns & Data Flow in Python."""
+"""Domain service for generating semantic developer hints and insights from Patterns & Data Flow in PHP."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ from pattern_detector.domain.value_objects import PatternType, SourceLocation
 
 
 class PatternInsightsService:
-    """Combines Design Pattern Detections with Data Flow graphs to generate Python coder hints."""
+    """Combines Design Pattern Detections with Data Flow graphs to generate PHP coder hints."""
 
     def generate_insights(
         self,
@@ -25,7 +25,7 @@ class PatternInsightsService:
         pattern_report: DetectionReport,
         data_flow_summary: DataFlowSummaryReport | None = None,
     ) -> InsightsReport:
-        """Analyze pattern-data interactions and formulate actionable Python coder guidance."""
+        """Analyze pattern-data interactions and formulate actionable PHP coder guidance."""
         insights: list[PatternInsight] = []
         project_path = pattern_report.project_path
 
@@ -262,22 +262,23 @@ class PatternInsightsService:
                 PatternInsight(
                     target_pattern=PatternType.ABSTRACT_FACTORY,
                     target_name=target,
-                    data_entity="Product Family Protocols (typing.Protocol / ABC)",
+                    data_entity="Product Family Interfaces",
                     severity=InsightSeverity.INFO,
                     category=InsightCategory.ARCHITECTURAL_HEALTH,
-                    title=f"Protocol Typing in Factory '{target}'",
+                    title=f"Interface Typing in Factory '{target}'",
                     description=(
                         f"Factory '{target}' declares a family of creation methods. "
-                        "In modern Python, using typing.Protocol enables structural subtyping (duck typing) without explicit inheritance."
+                        "In modern PHP, using explicit interface return types enables polymorphic substitution without tight coupling."
                     ),
                     suggestion=(
-                        "Return Protocol types from factory methods so callers depend strictly on behavioral interfaces."
+                        "Return Interface types from factory methods so callers depend strictly on behavioral abstractions (DIP)."
                     ),
                     code_snippet=(
-                        "from typing import Protocol\n\n"
-                        "class UIFactory(Protocol):\n"
-                        "    def create_button(self) -> Button: ...\n"
-                        "    def create_dialog(self) -> Dialog: ..."
+                        "interface UIFactory\n"
+                        "{\n"
+                        "    public function createButton(): Button;\n"
+                        "    public function createDialog(): Dialog;\n"
+                        "}"
                     ),
                     location=loc,
                 )
