@@ -1,14 +1,26 @@
-# 🐘 DPX-Php: Pattern Scanner, Software Architecture Analyzer & Data Flow Engine for PHP
+# 🐘 DPX-Php: Design Pattern Detector & Software Architecture Scanner for PHP
 
-> **Hexagonal Architecture (Ports & Adapters) + Domain-Driven Design (DDD)** static analysis and software design pattern detection engine for **PHP (7.4 - 8.4+)** powered by a high-performance **native Regex/AST PHP parser** (zero external grammar dependencies).
+> **Hexagonal Architecture (Ports & Adapters) + Domain-Driven Design (DDD)** static analysis and software design pattern detection engine for **PHP (7.4 - 8.4+)** with dual-engine AST parsing (Ultrafast Native & Formal ANTLR4).
 
+[![PyPI Version](https://img.shields.io/pypi/v/dpx-php.svg?style=flat&color=blue)](https://pypi.org/project/dpx-php/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat&logo=python)](https://www.python.org/)
 [![PHP](https://img.shields.io/badge/PHP-7.4%20--%208.4%2B-8892BF.svg?style=flat&logo=php)](https://www.php.net/)
-[![Architecture](https://img.shields.io/badge/Architecture-Hexagonal%20%2B%20DDD-brightgreen.svg?style=flat)]()
-[![Parser](https://img.shields.io/badge/Parser-Native%20PHP%20AST%20(Regex)-red.svg?style=flat)]()
-[![Tests](https://img.shields.io/badge/Tests-18%20passed%20(100%25)-success.svg?style=flat)]()
-[![Rules](https://img.shields.io/badge/Supported%20Rules-37%20(23%20GoF%20%2B%2010%20SOLID%2FPrinciples%20%2B%202%20Arch%20%2B%202%20PHP)-orange.svg?style=flat)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat)](https://opensource.org/licenses/MIT)
+[![Tests](https://img.shields.io/badge/Tests-42%20passed%20(100%25)-success.svg?style=flat)]()
+[![Rules](https://img.shields.io/badge/Supported%20Rules-37%20Rules-orange.svg?style=flat)]()
 [![SARIF](https://img.shields.io/badge/SARIF-v2.1.0%20OASIS-blue.svg?style=flat)]()
+
+---
+
+## 📦 Installation
+
+```bash
+# Using pip
+pip install dpx-php
+
+# Using uv
+uv tool install dpx-php
+```
 
 ---
 
@@ -35,31 +47,39 @@
 * **Circular Dependency**: Inter-namespace import cycle detection via Tarjan's SCC.
 
 ### 🎨 Interactive HTML Dashboards:
-* **Pattern Scanner Dashboard**: Semantic UI Dark Theme, KPI stats, category filter pills, Evidence Trail heuristic inspector, instant search, and **AI Architectural Map** with one-click copy for LLM analysis.
+* **Pattern Scanner Dashboard**: Semantic UI Dark Theme, KPI stats, category filter pills, Evidence Trail heuristic inspector, instant search, live `[ 🛡️ Hide SOLID & Principles ]` toggle, and **AI Architectural Map** with one-click copy for LLM analysis.
 
 ### 📤 Multi-Format Export:
-* Rich CLI Console, JSON, Markdown, OASIS SARIF v2.1.0 (GitHub Code Scanning), interactive HTML dashboards, and `--llm` XML/Markdown context.
+* Rich CLI Console, JSON, Markdown, OASIS SARIF v2.1.0 (GitHub Code Scanning & CI/CD), interactive HTML dashboards, and `--llm` XML/Markdown context prompt.
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Usage & CLI Commands
 
 ```bash
-git clone https://github.com/bivex/DPX-Php.git
-cd DPX-Php
-uv sync
+# Basic scan (terminal output)
+dpx scan /path/to/php/project
 
-# Scan a PHP project with fast native parser (default)
-uv run dpx scan /path/to/php/project
+# Scan and export standalone interactive HTML dashboard
+dpx scan /path/to/php/project -H reports/dashboard.html
 
-# Scan with formal ANTLR4 PHP grammar parser
-uv run dpx scan /path/to/php/project --parser antlr
+# Scan GoF & Architecture patterns only (exclude SOLID/Clean code rules)
+dpx scan /path/to/php/project -H reports/patterns_only.html --no-principles
 
-# Export interactive HTML dashboard (GoF & Architectural patterns only, no SOLID/Principles)
-uv run dpx scan /path/to/php/project -H reports/dashboard.html --no-principles
+# Filter by minimum confidence (low, medium, high, very_high)
+dpx scan /path/to/php/project -c high
 
-# Generate LLM architectural map (copy-paste to Claude / ChatGPT / Gemini)
-uv run dpx scan /path/to/php/project --llm
+# Scan specific patterns only
+dpx scan /path/to/php/project -p singleton -p factory_method -p strategy
+
+# Use formal ANTLR4 parser engine
+dpx scan /path/to/php/project --parser antlr
+
+# Generate SARIF v2.1.0 report for GitHub Security / Code Scanning
+dpx scan /path/to/php/project -S report.sarif
+
+# Generate AI Architectural Context Prompt (paste to Claude / ChatGPT / Gemini)
+dpx scan /path/to/php/project --llm
 ```
 
 ---
@@ -68,12 +88,24 @@ uv run dpx scan /path/to/php/project --llm
 
 | Engine | Flag | Description | Performance |
 |---|---|---|---|
-| **Native Regex & Balanced Braces** | `--parser native` *(default)* | Pure Python, 0 external runtime deps, fault-tolerant on all PHP dialects | **270–1 400 files/s** |
-| **ANTLR4 PHP Grammar** | `--parser antlr` | Formal AST/CST conforming strictly to PHP specification (`PHPLexer.g4` & `PHPParser.g4`) | **10–50 files/s** |
+| **Native Regex & Balanced Braces** | `--parser native` *(default)* | Pure Python, zero external dependencies, ultrafast and resilient on all PHP dialects (7.4 – 8.4+) | **270–1 400 files/s** |
+| **ANTLR4 PHP Grammar** | `--parser antlr` | Formal AST/CST conforming strictly to PHP language specification (`PHPLexer.g4` & `PHPParser.g4`) | **10–50 files/s** |
 
 ---
 
-## 🧪 Testing
+## 📊 Real-World Framework Benchmarks
+
+| Project / Framework | Production Files | Findings | Scan Time | Speed |
+|---|:---:|:---:|:---:|:---:|
+| **Symfony Components Monorepo** | **7 797** | **5 755** | 71.6s | **109 files/s** |
+| **Laravel Framework Core** | **1 600** | **1 753** | 9.0s | **177 files/s** |
+| **Monolog Logger** | **121** | **140** | 0.23s | **527 files/s** |
+| **Guzzle HTTP Client** | **70** | **76** | 0.51s | **137 files/s** |
+| **Slim 4 Micro-Framework** | **72** | **68** | 0.09s | **803 files/s** |
+
+---
+
+## 🧪 Running Tests
 
 ```bash
 uv run pytest -v
@@ -81,14 +113,7 @@ uv run pytest -v
 
 ---
 
-## 📊 Benchmark
-
-| Input | Files | Detections | Time |
-|---|:---:|:---:|:---:|
-| **4 PHP sample files** | 4 | 58 | **~0.06s** |
-
----
-
 ## 📄 License
 
-Distributed under the MIT License.
+Distributed under the **MIT License**. See [LICENSE](LICENSE) for more information.
+
