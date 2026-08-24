@@ -374,13 +374,16 @@ class CodeModel:
                 if prefix and prefix in all_ns_names and prefix != ns_name:
                     graph[ns_name].add(prefix)
 
-    def find_circular_dependencies(self) -> list[list[str]]:
-        """Detect all simple circular dependency cycles between namespaces."""
+    def find_circular_dependencies(self, max_depth: int = 8, max_cycles: int = 100) -> list[list[str]]:
+        """Detect actionable simple circular dependency cycles between namespaces."""
         graph = self.build_namespace_dependency_graph()
         cycles: list[list[str]] = []
         visited: set[str] = set()
 
         def _dfs(current: str, path: list[str], path_set: set[str]) -> None:
+            if len(cycles) >= max_cycles * 5:
+                return
+
             path.append(current)
             path_set.add(current)
 
@@ -388,13 +391,17 @@ class CodeModel:
                 if neighbor == path[0] and len(path) >= 2:
                     # Found cycle back to origin
                     cycles.append(list(path))
-                elif neighbor not in path_set and neighbor not in visited:
+                    if len(cycles) >= max_cycles * 5:
+                        break
+                elif neighbor not in path_set and neighbor not in visited and len(path) < max_depth:
                     _dfs(neighbor, path, path_set)
 
             path.pop()
             path_set.remove(current)
 
         for node in sorted(graph.keys()):
+            if len(cycles) >= max_cycles * 5:
+                break
             _dfs(node, [], set())
             visited.add(node)
 
@@ -411,5 +418,7 @@ class CodeModel:
             if canonical not in seen_cycle_keys:
                 seen_cycle_keys.add(canonical)
                 unique_cycles.append(c)
+                if len(unique_cycles) >= max_cycles:
+                    break
 
         return unique_cycles

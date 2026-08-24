@@ -68,10 +68,17 @@ class SingletonPatternRule(BasePatternRule):
         return results
 
     def _analyze_singleton_record(self, rec: Any) -> Detection | None:
-        get_instance_methods = self._find_get_instance_methods(rec.methods)
         has_instance_field = any("instance" in f.lower() or f == rec.name for f in rec.fields)
+        get_instance_methods = self._find_get_instance_methods(rec.methods, has_instance_field)
 
         if not get_instance_methods and not has_instance_field:
+            return None
+
+        # If there's no static instance field, we require explicit singleton accessor naming (getInstance, shared, defaultInstance)
+        if not has_instance_field and not any(
+            m.name.lower().split(".")[-1] in ("getinstance", "get_instance", "getdefaultinstance", "shared", "sharedinstance")
+            for m in get_instance_methods
+        ):
             return None
 
         evidences, related_locs = self._build_record_singleton_evidences(rec, get_instance_methods, has_instance_field)
@@ -87,12 +94,16 @@ class SingletonPatternRule(BasePatternRule):
         detection.pattern_category = PatternCategory.CREATIONAL
         return detection
 
-    def _find_get_instance_methods(self, methods: list[Any]) -> list[Any]:
-        keywords = ("getinstance", "instance", "get_instance", "shared_instance")
+    def _find_get_instance_methods(self, methods: list[Any], has_instance_field: bool) -> list[Any]:
         results = []
         for m in methods:
-            m_lower = m.name.lower()
-            if any(k in m_lower for k in keywords):
+            m_simple = m.name.lower().split(".")[-1]
+            params = m.parameter_lists[0] if m.parameter_lists else []
+            # Explicit singleton method names always match
+            if m_simple in ("getinstance", "get_instance", "getdefaultinstance", "shared", "sharedinstance"):
+                results.append(m)
+            # Generic "instance" method only matches if 0 required params or class has static instance field
+            elif m_simple == "instance" and (has_instance_field or len(params) == 0):
                 results.append(m)
         return results
 
