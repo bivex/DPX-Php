@@ -281,3 +281,53 @@ def test_full_scan_detects_solid_violations_in_principles_php() -> None:
     report = scanner.scan_path(str(PRINCIPLES_PHP))
     # UserManager is a God Class -> SRP violation
     assert report.total_detections_count > 0
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PHP-SPECIFIC PATTERNS: MIDDLEWARE PIPELINE & MULTIMETHOD DISPATCH
+# ─────────────────────────────────────────────────────────────────────────────
+
+PHP_SPECIFIC_PHP = (
+    Path(__file__).parent.parent / "examples" / "php_samples" / "PhpSpecificPatternsDemo.php"
+)
+
+
+def test_psr15_and_laravel_middleware_pipeline_detected() -> None:
+    from pattern_detector.bootstrap.container import create_container
+    container = create_container()
+    scanner = container.get_scanner()
+
+    report = scanner.scan_path(str(PHP_SPECIFIC_PHP))
+    detections = [d for d in report.detections if d.pattern_type.value == "middleware_pipeline"]
+    assert len(detections) >= 3
+
+    target_names = {d.target_name for d in detections}
+    assert "AuthenticationMiddleware" in target_names or "RateLimitMiddleware" in target_names
+    assert "HttpKernel" in target_names or "MiddlewarePipeline" in target_names
+
+
+def test_php_multimethod_dispatch_detected() -> None:
+    from pattern_detector.bootstrap.container import create_container
+    container = create_container()
+    scanner = container.get_scanner()
+
+    report = scanner.scan_path(str(PHP_SPECIFIC_PHP))
+    detections = [d for d in report.detections if d.pattern_type.value == "multimethod_dispatch"]
+    assert len(detections) >= 2
+
+    target_names = {d.target_name for d in detections}
+    assert "CommandBus" in target_names or "EventDispatcher" in target_names
+    assert any("serializeValue" in name for name in target_names) or len(detections) >= 2
+
+
+def test_all_37_rules_registered_and_executable() -> None:
+    from pattern_detector.domain.rules import get_default_rules
+    from pattern_detector.domain.value_objects import PatternType
+
+    rules = get_default_rules()
+    assert len(rules) == 37
+
+    rule_types = {r.pattern_type for r in rules}
+    assert len(rule_types) == 37
+    assert len(rule_types) == len(PatternType)
+

@@ -7,17 +7,20 @@
 [![Architecture](https://img.shields.io/badge/Architecture-Hexagonal%20%2B%20DDD-brightgreen.svg?style=flat)]()
 [![Parser](https://img.shields.io/badge/Parser-Native%20PHP%20AST%20(Regex)-red.svg?style=flat)]()
 [![Tests](https://img.shields.io/badge/Tests-18%20passed%20(100%25)-success.svg?style=flat)]()
-[![Rules](https://img.shields.io/badge/Supported%20Rules-35%20(23%20GoF%20%2B%2010%20SOLID%2FPrinciples%20%2B%202%20Arch)-orange.svg?style=flat)]()
+[![Rules](https://img.shields.io/badge/Supported%20Rules-37%20(23%20GoF%20%2B%2010%20SOLID%2FPrinciples%20%2B%202%20Arch%20%2B%202%20PHP)-orange.svg?style=flat)]()
 [![SARIF](https://img.shields.io/badge/SARIF-v2.1.0%20OASIS-blue.svg?style=flat)]()
 
 ---
 
 ## ✨ Key Capabilities
 
-### 🔍 All 23 Gang of Four (GoF) Design Patterns Detected in PHP:
+### 🔍 All 23 Gang of Four (GoF) Design Patterns + 2 PHP-Specific Idioms:
 * **Creational**: Abstract Factory, Builder (Fluent method chaining returning `$this`/`static`), Factory Method, Prototype (`clone`/`withX()` idioms), Singleton (`static $instance` + `getInstance()`).
 * **Structural**: Adapter, Bridge, Composite (hierarchical trees with component interfaces), Decorator (wrapping same interface), Facade, Flyweight, Proxy (Lazy loading, Security, Caching).
 * **Behavioral**: Chain of Responsibility (`setNext()` handler chains), Command (execute/undo), Interpreter, Iterator (`Iterator`/`IteratorAggregate` interface), Mediator, Memento, Observer (`subscribe`/`emit` / `EventEmitter` + `EventListener`), State, Strategy (PHP `interface` polymorphic dispatch), Template Method (abstract + final method combinations), Visitor.
+* **PHP-Specific Architecture**:
+  * **PSR-15 Middleware Pipeline**: `MiddlewareInterface` / `RequestHandlerInterface` pipelines, Slim 4 `$app->add()` / `$app->pipe()` stacks, and Laravel HTTP Kernel `$middlewareGroups` / `$routeMiddleware`.
+  * **Multimethod / Dynamic Type Dispatch**: PHP 8.0+ `match($type)` expression dispatch branches, Command/Event Bus dispatcher maps (`$handlers[$commandClass]->handle($command)`), and type discriminator registries.
 
 ### 🛡️ 10 SOLID Principles & Clean Code Rules:
 * **SRP**: God Class detection (≥15 methods mixing multiple concerns).

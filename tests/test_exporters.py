@@ -91,7 +91,7 @@ def test_cli_html_and_markdown_export() -> None:
     container = create_container()
     scanner = container.get_scanner()
 
-    examples_dir = str(Path(__file__).parent.parent / "examples" / "python_samples")
+    examples_dir = str(Path(__file__).parent.parent / "examples" / "php_samples")
 
     with tempfile.TemporaryDirectory() as tmpdir:
         html_out = str(Path(tmpdir) / "dashboard.html")
@@ -125,7 +125,7 @@ def test_llm_report_formatter() -> None:
 
     # Test CLI --llm flag
     runner = CliRunner()
-    examples_dir = str(Path(__file__).parent.parent / "examples" / "python_samples")
+    examples_dir = str(Path(__file__).parent.parent / "examples" / "php_samples")
     result = runner.invoke(app, ["scan", examples_dir, "--llm"])
     assert result.exit_code == 0
     assert "<codebase_architecture_analysis>" in result.stdout

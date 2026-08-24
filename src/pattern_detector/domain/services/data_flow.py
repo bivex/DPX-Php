@@ -518,12 +518,12 @@ class DataFlowService:
                 dst_graph.add_edge(edge.from_id, edge.to_id, edge.kind, edge.location)
 
     def _collect_model_variables(self, model: CodeModel, file_filter: str | None) -> dict[str, Any]:
-        from pattern_detector.adapters.outbound.python_ast.py_parser_adapter import _PYTHON_BUILTINS_AND_KEYWORDS
+        from pattern_detector.adapters.outbound.php_ast.php_parser_adapter import _PHP_BUILTINS_AND_KEYWORDS
 
         vars_map: dict[str, Any] = {}
-        self._collect_state_variables(model, file_filter, _PYTHON_BUILTINS_AND_KEYWORDS, vars_map)
-        self._collect_record_field_variables(model, file_filter, _PYTHON_BUILTINS_AND_KEYWORDS, vars_map)
-        self._collect_function_io_variables(model, file_filter, _PYTHON_BUILTINS_AND_KEYWORDS, vars_map)
+        self._collect_state_variables(model, file_filter, _PHP_BUILTINS_AND_KEYWORDS, vars_map)
+        self._collect_record_field_variables(model, file_filter, _PHP_BUILTINS_AND_KEYWORDS, vars_map)
+        self._collect_function_io_variables(model, file_filter, _PHP_BUILTINS_AND_KEYWORDS, vars_map)
         return vars_map
 
     def _collect_state_variables(

@@ -36,6 +36,8 @@ from pattern_detector.domain.rules.state_rule import StatePatternRule
 from pattern_detector.domain.rules.strategy_rule import StrategyPatternRule
 from pattern_detector.domain.rules.template_method_rule import TemplateMethodRule
 from pattern_detector.domain.rules.visitor_rule import VisitorPatternRule
+from pattern_detector.domain.rules.middleware_pipeline_rule import MiddlewarePipelineRule
+from pattern_detector.domain.rules.multimethod_dispatch_rule import MultimethodDispatchRule
 
 
 def get_default_rules() -> list[PatternRule]:
@@ -67,6 +69,9 @@ def get_default_rules() -> list[PatternRule]:
         MementoPatternRule(),
         VisitorPatternRule(),
         InterpreterPatternRule(),
+        # PHP-specific patterns (PSR-15 Middleware, Command/Event Bus dispatch)
+        MiddlewarePipelineRule(),
+        MultimethodDispatchRule(),
         # SOLID & Clean Code Principles (10)
         SingleResponsibilityRule(),
         OpenClosedPrincipleRule(),
@@ -118,6 +123,8 @@ __all__ = [
     "StatePatternRule",
     "StrategyPatternRule",
     "TemplateMethodRule",
+    "MiddlewarePipelineRule",
+    "MultimethodDispatchRule",
     "VisitorPatternRule",
     "get_default_rules",
 ]

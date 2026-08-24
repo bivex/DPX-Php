@@ -23,7 +23,7 @@ def test_cli_info_command() -> None:
 
 
 def test_cli_scan_command() -> None:
-    result = runner.invoke(app, ["scan", "examples/python_samples"])
+    result = runner.invoke(app, ["scan", "examples/php_samples"])
     assert result.exit_code == 0
     assert "Detection Summary" in result.stdout
     assert "Identified Design Patterns" in result.stdout

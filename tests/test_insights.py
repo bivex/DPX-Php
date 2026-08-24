@@ -10,7 +10,7 @@ from pattern_detector.bootstrap.container import create_container
 
 def test_pattern_insights_generation_on_cpp_samples() -> None:
     container = create_container()
-    examples_dir = str(Path(__file__).parent.parent / "examples" / "python_samples")
+    examples_dir = str(Path(__file__).parent.parent / "examples" / "php_samples")
 
     insights_report = container.scanning_service.generate_insights(examples_dir)
     assert insights_report.total_insights >= 0
@@ -18,7 +18,7 @@ def test_pattern_insights_generation_on_cpp_samples() -> None:
 
 def test_pattern_insights_cli_command() -> None:
     runner = CliRunner()
-    examples_dir = str(Path(__file__).parent.parent / "examples" / "python_samples")
+    examples_dir = str(Path(__file__).parent.parent / "examples" / "php_samples")
 
     result = runner.invoke(app, ["insights", examples_dir])
     assert result.exit_code == 0
