@@ -1,7 +1,7 @@
 [project]
 name = "dpx-php"
 version = "0.2.0"
-description = "Design Patterns X for PHP (7.4 - 8.4+) - Multi-Paradigm Hexagonal Pattern Detector & Data Flow Engine"
+description = "Fast PHP (7.4-8.4+) Design Pattern & Architecture Scanner (23 GoF, SOLID, PSR-15, Laravel Pipelines, Dual Native/ANTLR4 AST)"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
