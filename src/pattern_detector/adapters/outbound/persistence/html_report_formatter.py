@@ -490,11 +490,6 @@ _HTML_DASHBOARD_TEMPLATE: str = """<!DOCTYPE html>
                 filterCards();
             }});
         }});
-                btn.classList.add('active');
-                selectedStatus = btn.dataset.status;
-                filterCards();
-            }});
-        }});
 
         function copyArchMapForLlm() {{
             const rawText = document.getElementById('llmArchMapRaw').value;
