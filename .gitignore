@@ -3,11 +3,16 @@ __pycache__/
 *.pyc
 *.pyo
 .pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
 .mypy_cache/
 .ruff_cache/
 *.egg-info/
 dist/
 build/
 uv.lock
-benchmarks/
+benchmarks/*
+!benchmarks/false_positives
+!benchmarks/false_positives/**
 reports/

@@ -1,0 +1,13 @@
+{
+    "name": "benchmark/clean-php-app",
+    "description": "Standard PHP application with clean architecture and zero design pattern anomalies or SOLID violations",
+    "type": "project",
+    "require": {
+        "php": "^8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}

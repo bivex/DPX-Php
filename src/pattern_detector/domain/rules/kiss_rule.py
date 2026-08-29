@@ -29,9 +29,34 @@ class KissRule(BasePatternRule):
 
         for fn in model.all_functions():
             simple_name = fn.name.split(".")[-1]
-            if simple_name in ("equals", "hashCode", "toString", "compareTo"):
+            if simple_name in ("equals", "hashCode", "toString", "compareTo", "__toString", "__clone"):
                 continue
             if any("command" in d.lower() or "cli" in d.lower() or "route" in d.lower() for d in fn.decorators):
+                continue
+
+            class_name = fn.name.split(".")[0] if "." in fn.name else ""
+            if simple_name in ("__construct", "__init__") and class_name.endswith(
+                (
+                    "Dto",
+                    "DTO",
+                    "Data",
+                    "Record",
+                    "Value",
+                    "Event",
+                    "Message",
+                    "Request",
+                    "Response",
+                    "Profile",
+                    "State",
+                    "Entity",
+                    "Config",
+                    "Settings",
+                    "Options",
+                    "Parameters",
+                    "Payload",
+                    "Context",
+                )
+            ):
                 continue
 
             # 1. Parameter count check
