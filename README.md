@@ -6,7 +6,7 @@
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat&logo=python)](https://www.python.org/)
 [![PHP](https://img.shields.io/badge/PHP-7.4%20--%208.4%2B-8892BF.svg?style=flat&logo=php)](https://www.php.net/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/Tests-73%20passed%20(100%25)-success.svg?style=flat)]()
+[![Tests](https://img.shields.io/badge/Tests-77%20passed%20(100%25)-success.svg?style=flat)]()
 [![Rules](https://img.shields.io/badge/Supported%20Rules-37%20Rules-orange.svg?style=flat)]()
 [![SARIF](https://img.shields.io/badge/SARIF-v2.1.0%20OASIS-blue.svg?style=flat)]()
 
