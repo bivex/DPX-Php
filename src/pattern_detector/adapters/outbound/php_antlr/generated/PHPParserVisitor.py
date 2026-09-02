@@ -1,238 +1,873 @@
-# Generated from /Volumes/External/Code/DPX-Php/grammars/PHPParser.g4 by ANTLR 4.13.2
+# Generated from PhpParser.g4 by ANTLR 4.13.2
 from antlr4 import *
 if "." in __name__:
-    from .PHPParser import PHPParser
+    from .PhpParser import PhpParser
 else:
-    from PHPParser import PHPParser
+    from PhpParser import PhpParser
 
-# This class defines a complete generic visitor for a parse tree produced by PHPParser.
+# This class defines a complete generic visitor for a parse tree produced by PhpParser.
 
-class PHPParserVisitor(ParseTreeVisitor):
+class PhpParserVisitor(ParseTreeVisitor):
 
-    # Visit a parse tree produced by PHPParser#phpFile.
-    def visitPhpFile(self, ctx:PHPParser.PhpFileContext):
+    # Visit a parse tree produced by PhpParser#htmlDocument.
+    def visitHtmlDocument(self, ctx:PhpParser.HtmlDocumentContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#declareStatement.
-    def visitDeclareStatement(self, ctx:PHPParser.DeclareStatementContext):
+    # Visit a parse tree produced by PhpParser#inlineHtml.
+    def visitInlineHtml(self, ctx:PhpParser.InlineHtmlContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#namespaceStatement.
-    def visitNamespaceStatement(self, ctx:PHPParser.NamespaceStatementContext):
+    # Visit a parse tree produced by PhpParser#htmlElement.
+    def visitHtmlElement(self, ctx:PhpParser.HtmlElementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#useStatement.
-    def visitUseStatement(self, ctx:PHPParser.UseStatementContext):
+    # Visit a parse tree produced by PhpParser#scriptText.
+    def visitScriptText(self, ctx:PhpParser.ScriptTextContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#useDeclarationList.
-    def visitUseDeclarationList(self, ctx:PHPParser.UseDeclarationListContext):
+    # Visit a parse tree produced by PhpParser#phpBlock.
+    def visitPhpBlock(self, ctx:PhpParser.PhpBlockContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#useItem.
-    def visitUseItem(self, ctx:PHPParser.UseItemContext):
+    # Visit a parse tree produced by PhpParser#importStatement.
+    def visitImportStatement(self, ctx:PhpParser.ImportStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#topLevelStatement.
-    def visitTopLevelStatement(self, ctx:PHPParser.TopLevelStatementContext):
+    # Visit a parse tree produced by PhpParser#topStatement.
+    def visitTopStatement(self, ctx:PhpParser.TopStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#classDeclaration.
-    def visitClassDeclaration(self, ctx:PHPParser.ClassDeclarationContext):
+    # Visit a parse tree produced by PhpParser#useDeclaration.
+    def visitUseDeclaration(self, ctx:PhpParser.UseDeclarationContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#interfaceDeclaration.
-    def visitInterfaceDeclaration(self, ctx:PHPParser.InterfaceDeclarationContext):
+    # Visit a parse tree produced by PhpParser#useDeclarationContentList.
+    def visitUseDeclarationContentList(self, ctx:PhpParser.UseDeclarationContentListContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#traitDeclaration.
-    def visitTraitDeclaration(self, ctx:PHPParser.TraitDeclarationContext):
+    # Visit a parse tree produced by PhpParser#useDeclarationContent.
+    def visitUseDeclarationContent(self, ctx:PhpParser.UseDeclarationContentContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#enumDeclaration.
-    def visitEnumDeclaration(self, ctx:PHPParser.EnumDeclarationContext):
+    # Visit a parse tree produced by PhpParser#namespaceDeclaration.
+    def visitNamespaceDeclaration(self, ctx:PhpParser.NamespaceDeclarationContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#classMember.
-    def visitClassMember(self, ctx:PHPParser.ClassMemberContext):
+    # Visit a parse tree produced by PhpParser#namespaceStatement.
+    def visitNamespaceStatement(self, ctx:PhpParser.NamespaceStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#useTraitStatement.
-    def visitUseTraitStatement(self, ctx:PHPParser.UseTraitStatementContext):
+    # Visit a parse tree produced by PhpParser#functionDeclaration.
+    def visitFunctionDeclaration(self, ctx:PhpParser.FunctionDeclarationContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#constDeclaration.
-    def visitConstDeclaration(self, ctx:PHPParser.ConstDeclarationContext):
+    # Visit a parse tree produced by PhpParser#classDeclaration.
+    def visitClassDeclaration(self, ctx:PhpParser.ClassDeclarationContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#propertyDeclaration.
-    def visitPropertyDeclaration(self, ctx:PHPParser.PropertyDeclarationContext):
+    # Visit a parse tree produced by PhpParser#classEntryType.
+    def visitClassEntryType(self, ctx:PhpParser.ClassEntryTypeContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#methodDeclaration.
-    def visitMethodDeclaration(self, ctx:PHPParser.MethodDeclarationContext):
+    # Visit a parse tree produced by PhpParser#interfaceList.
+    def visitInterfaceList(self, ctx:PhpParser.InterfaceListContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#functionDeclaration.
-    def visitFunctionDeclaration(self, ctx:PHPParser.FunctionDeclarationContext):
+    # Visit a parse tree produced by PhpParser#typeParameterListInBrackets.
+    def visitTypeParameterListInBrackets(self, ctx:PhpParser.TypeParameterListInBracketsContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#methodName.
-    def visitMethodName(self, ctx:PHPParser.MethodNameContext):
+    # Visit a parse tree produced by PhpParser#typeParameterList.
+    def visitTypeParameterList(self, ctx:PhpParser.TypeParameterListContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#keywordAsIdentifier.
-    def visitKeywordAsIdentifier(self, ctx:PHPParser.KeywordAsIdentifierContext):
+    # Visit a parse tree produced by PhpParser#typeParameterWithDefaultsList.
+    def visitTypeParameterWithDefaultsList(self, ctx:PhpParser.TypeParameterWithDefaultsListContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#parameterList.
-    def visitParameterList(self, ctx:PHPParser.ParameterListContext):
+    # Visit a parse tree produced by PhpParser#typeParameterDecl.
+    def visitTypeParameterDecl(self, ctx:PhpParser.TypeParameterDeclContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#parameter.
-    def visitParameter(self, ctx:PHPParser.ParameterContext):
+    # Visit a parse tree produced by PhpParser#typeParameterWithDefaultDecl.
+    def visitTypeParameterWithDefaultDecl(self, ctx:PhpParser.TypeParameterWithDefaultDeclContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#classModifier.
-    def visitClassModifier(self, ctx:PHPParser.ClassModifierContext):
+    # Visit a parse tree produced by PhpParser#genericDynamicArgs.
+    def visitGenericDynamicArgs(self, ctx:PhpParser.GenericDynamicArgsContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#memberModifier.
-    def visitMemberModifier(self, ctx:PHPParser.MemberModifierContext):
+    # Visit a parse tree produced by PhpParser#attributes.
+    def visitAttributes(self, ctx:PhpParser.AttributesContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#qualifiedNameList.
-    def visitQualifiedNameList(self, ctx:PHPParser.QualifiedNameListContext):
+    # Visit a parse tree produced by PhpParser#attributeGroup.
+    def visitAttributeGroup(self, ctx:PhpParser.AttributeGroupContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#qualifiedName.
-    def visitQualifiedName(self, ctx:PHPParser.QualifiedNameContext):
+    # Visit a parse tree produced by PhpParser#attribute.
+    def visitAttribute(self, ctx:PhpParser.AttributeContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#qualifiedSeparator.
-    def visitQualifiedSeparator(self, ctx:PHPParser.QualifiedSeparatorContext):
+    # Visit a parse tree produced by PhpParser#innerStatementList.
+    def visitInnerStatementList(self, ctx:PhpParser.InnerStatementListContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#type.
-    def visitType(self, ctx:PHPParser.TypeContext):
+    # Visit a parse tree produced by PhpParser#innerStatement.
+    def visitInnerStatement(self, ctx:PhpParser.InnerStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#block.
-    def visitBlock(self, ctx:PHPParser.BlockContext):
+    # Visit a parse tree produced by PhpParser#statement.
+    def visitStatement(self, ctx:PhpParser.StatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#statement.
-    def visitStatement(self, ctx:PHPParser.StatementContext):
+    # Visit a parse tree produced by PhpParser#emptyStatement_.
+    def visitEmptyStatement_(self, ctx:PhpParser.EmptyStatement_Context):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#switchBlock.
-    def visitSwitchBlock(self, ctx:PHPParser.SwitchBlockContext):
+    # Visit a parse tree produced by PhpParser#blockStatement.
+    def visitBlockStatement(self, ctx:PhpParser.BlockStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#expression.
-    def visitExpression(self, ctx:PHPParser.ExpressionContext):
+    # Visit a parse tree produced by PhpParser#ifStatement.
+    def visitIfStatement(self, ctx:PhpParser.IfStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#primaryExpression.
-    def visitPrimaryExpression(self, ctx:PHPParser.PrimaryExpressionContext):
+    # Visit a parse tree produced by PhpParser#elseIfStatement.
+    def visitElseIfStatement(self, ctx:PhpParser.ElseIfStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#newExpression.
-    def visitNewExpression(self, ctx:PHPParser.NewExpressionContext):
+    # Visit a parse tree produced by PhpParser#elseIfColonStatement.
+    def visitElseIfColonStatement(self, ctx:PhpParser.ElseIfColonStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#cloneExpression.
-    def visitCloneExpression(self, ctx:PHPParser.CloneExpressionContext):
+    # Visit a parse tree produced by PhpParser#elseStatement.
+    def visitElseStatement(self, ctx:PhpParser.ElseStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#closureExpression.
-    def visitClosureExpression(self, ctx:PHPParser.ClosureExpressionContext):
+    # Visit a parse tree produced by PhpParser#elseColonStatement.
+    def visitElseColonStatement(self, ctx:PhpParser.ElseColonStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#arrayExpression.
-    def visitArrayExpression(self, ctx:PHPParser.ArrayExpressionContext):
+    # Visit a parse tree produced by PhpParser#whileStatement.
+    def visitWhileStatement(self, ctx:PhpParser.WhileStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#arrayElement.
-    def visitArrayElement(self, ctx:PHPParser.ArrayElementContext):
+    # Visit a parse tree produced by PhpParser#doWhileStatement.
+    def visitDoWhileStatement(self, ctx:PhpParser.DoWhileStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#matchExpression.
-    def visitMatchExpression(self, ctx:PHPParser.MatchExpressionContext):
+    # Visit a parse tree produced by PhpParser#forStatement.
+    def visitForStatement(self, ctx:PhpParser.ForStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#matchArm.
-    def visitMatchArm(self, ctx:PHPParser.MatchArmContext):
+    # Visit a parse tree produced by PhpParser#forInit.
+    def visitForInit(self, ctx:PhpParser.ForInitContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#functionCall.
-    def visitFunctionCall(self, ctx:PHPParser.FunctionCallContext):
+    # Visit a parse tree produced by PhpParser#forUpdate.
+    def visitForUpdate(self, ctx:PhpParser.ForUpdateContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#memberAccess.
-    def visitMemberAccess(self, ctx:PHPParser.MemberAccessContext):
+    # Visit a parse tree produced by PhpParser#switchStatement.
+    def visitSwitchStatement(self, ctx:PhpParser.SwitchStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#argumentList.
-    def visitArgumentList(self, ctx:PHPParser.ArgumentListContext):
+    # Visit a parse tree produced by PhpParser#switchBlock.
+    def visitSwitchBlock(self, ctx:PhpParser.SwitchBlockContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#argument.
-    def visitArgument(self, ctx:PHPParser.ArgumentContext):
+    # Visit a parse tree produced by PhpParser#breakStatement.
+    def visitBreakStatement(self, ctx:PhpParser.BreakStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#literal.
-    def visitLiteral(self, ctx:PHPParser.LiteralContext):
+    # Visit a parse tree produced by PhpParser#continueStatement.
+    def visitContinueStatement(self, ctx:PhpParser.ContinueStatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PHPParser#operator.
-    def visitOperator(self, ctx:PHPParser.OperatorContext):
+    # Visit a parse tree produced by PhpParser#returnStatement.
+    def visitReturnStatement(self, ctx:PhpParser.ReturnStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#expressionStatement.
+    def visitExpressionStatement(self, ctx:PhpParser.ExpressionStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#unsetStatement.
+    def visitUnsetStatement(self, ctx:PhpParser.UnsetStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#foreachStatement.
+    def visitForeachStatement(self, ctx:PhpParser.ForeachStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#tryCatchFinally.
+    def visitTryCatchFinally(self, ctx:PhpParser.TryCatchFinallyContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#catchClause.
+    def visitCatchClause(self, ctx:PhpParser.CatchClauseContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#finallyStatement.
+    def visitFinallyStatement(self, ctx:PhpParser.FinallyStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#throwStatement.
+    def visitThrowStatement(self, ctx:PhpParser.ThrowStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#gotoStatement.
+    def visitGotoStatement(self, ctx:PhpParser.GotoStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#declareStatement.
+    def visitDeclareStatement(self, ctx:PhpParser.DeclareStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#inlineHtmlStatement.
+    def visitInlineHtmlStatement(self, ctx:PhpParser.InlineHtmlStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#declareList.
+    def visitDeclareList(self, ctx:PhpParser.DeclareListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#directive.
+    def visitDirective(self, ctx:PhpParser.DirectiveContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#formalParameterList.
+    def visitFormalParameterList(self, ctx:PhpParser.FormalParameterListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#formalParameter.
+    def visitFormalParameter(self, ctx:PhpParser.FormalParameterContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#typeHint.
+    def visitTypeHint(self, ctx:PhpParser.TypeHintContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#globalStatement.
+    def visitGlobalStatement(self, ctx:PhpParser.GlobalStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#globalVar.
+    def visitGlobalVar(self, ctx:PhpParser.GlobalVarContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#echoStatement.
+    def visitEchoStatement(self, ctx:PhpParser.EchoStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#staticVariableStatement.
+    def visitStaticVariableStatement(self, ctx:PhpParser.StaticVariableStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#classStatement.
+    def visitClassStatement(self, ctx:PhpParser.ClassStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#traitAdaptations.
+    def visitTraitAdaptations(self, ctx:PhpParser.TraitAdaptationsContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#traitAdaptationStatement.
+    def visitTraitAdaptationStatement(self, ctx:PhpParser.TraitAdaptationStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#traitPrecedence.
+    def visitTraitPrecedence(self, ctx:PhpParser.TraitPrecedenceContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#traitAlias.
+    def visitTraitAlias(self, ctx:PhpParser.TraitAliasContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#traitMethodReference.
+    def visitTraitMethodReference(self, ctx:PhpParser.TraitMethodReferenceContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#baseCtorCall.
+    def visitBaseCtorCall(self, ctx:PhpParser.BaseCtorCallContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#returnTypeDecl.
+    def visitReturnTypeDecl(self, ctx:PhpParser.ReturnTypeDeclContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#methodBody.
+    def visitMethodBody(self, ctx:PhpParser.MethodBodyContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#propertyModifiers.
+    def visitPropertyModifiers(self, ctx:PhpParser.PropertyModifiersContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#memberModifiers.
+    def visitMemberModifiers(self, ctx:PhpParser.MemberModifiersContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#variableInitializer.
+    def visitVariableInitializer(self, ctx:PhpParser.VariableInitializerContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#identifierInitializer.
+    def visitIdentifierInitializer(self, ctx:PhpParser.IdentifierInitializerContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#globalConstantDeclaration.
+    def visitGlobalConstantDeclaration(self, ctx:PhpParser.GlobalConstantDeclarationContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#enumDeclaration.
+    def visitEnumDeclaration(self, ctx:PhpParser.EnumDeclarationContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#enumItem.
+    def visitEnumItem(self, ctx:PhpParser.EnumItemContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#expressionList.
+    def visitExpressionList(self, ctx:PhpParser.ExpressionListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#parentheses.
+    def visitParentheses(self, ctx:PhpParser.ParenthesesContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#ChainExpression.
+    def visitChainExpression(self, ctx:PhpParser.ChainExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#LogicalAndExpression.
+    def visitLogicalAndExpression(self, ctx:PhpParser.LogicalAndExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#SpecialWordExpression.
+    def visitSpecialWordExpression(self, ctx:PhpParser.SpecialWordExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#ExponentiationExpression.
+    def visitExponentiationExpression(self, ctx:PhpParser.ExponentiationExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#ArrayCreationExpression.
+    def visitArrayCreationExpression(self, ctx:PhpParser.ArrayCreationExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#BackQuoteStringExpression.
+    def visitBackQuoteStringExpression(self, ctx:PhpParser.BackQuoteStringExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#MatchExpression.
+    def visitMatchExpression(self, ctx:PhpParser.MatchExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#PrintExpression.
+    def visitPrintExpression(self, ctx:PhpParser.PrintExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#AssignmentExpression.
+    def visitAssignmentExpression(self, ctx:PhpParser.AssignmentExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#PostfixIncDecExpression.
+    def visitPostfixIncDecExpression(self, ctx:PhpParser.PostfixIncDecExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#IncludeExpression.
+    def visitIncludeExpression(self, ctx:PhpParser.IncludeExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#BitwiseExcOrExpression.
+    def visitBitwiseExcOrExpression(self, ctx:PhpParser.BitwiseExcOrExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#EqualityExpression.
+    def visitEqualityExpression(self, ctx:PhpParser.EqualityExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#MultiplicativeExpression.
+    def visitMultiplicativeExpression(self, ctx:PhpParser.MultiplicativeExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#CloneExpression.
+    def visitCloneExpression(self, ctx:PhpParser.CloneExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#AdditiveExpression.
+    def visitAdditiveExpression(self, ctx:PhpParser.AdditiveExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#RelationalExpression.
+    def visitRelationalExpression(self, ctx:PhpParser.RelationalExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#UnaryOperatorExpression.
+    def visitUnaryOperatorExpression(self, ctx:PhpParser.UnaryOperatorExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#NewExpression.
+    def visitNewExpression(self, ctx:PhpParser.NewExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#ParenthesisExpression.
+    def visitParenthesisExpression(self, ctx:PhpParser.ParenthesisExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#LogicalIncOrExpression.
+    def visitLogicalIncOrExpression(self, ctx:PhpParser.LogicalIncOrExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#SpaceshipExpression.
+    def visitSpaceshipExpression(self, ctx:PhpParser.SpaceshipExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#ConditionalExpression.
+    def visitConditionalExpression(self, ctx:PhpParser.ConditionalExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#ShiftExpression.
+    def visitShiftExpression(self, ctx:PhpParser.ShiftExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#IndexerExpression.
+    def visitIndexerExpression(self, ctx:PhpParser.IndexerExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#ScalarExpression.
+    def visitScalarExpression(self, ctx:PhpParser.ScalarExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#PrefixIncDecExpression.
+    def visitPrefixIncDecExpression(self, ctx:PhpParser.PrefixIncDecExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#RequireExpression.
+    def visitRequireExpression(self, ctx:PhpParser.RequireExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#BitwiseAndExpression.
+    def visitBitwiseAndExpression(self, ctx:PhpParser.BitwiseAndExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#LogicalExcOrExpression.
+    def visitLogicalExcOrExpression(self, ctx:PhpParser.LogicalExcOrExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#BitwiseIncOrExpression.
+    def visitBitwiseIncOrExpression(self, ctx:PhpParser.BitwiseIncOrExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#CastExpression.
+    def visitCastExpression(self, ctx:PhpParser.CastExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#InstanceOfExpression.
+    def visitInstanceOfExpression(self, ctx:PhpParser.InstanceOfExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#ArrayDestructExpression.
+    def visitArrayDestructExpression(self, ctx:PhpParser.ArrayDestructExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#LambdaFunctionExpression.
+    def visitLambdaFunctionExpression(self, ctx:PhpParser.LambdaFunctionExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#CoalesceExpression.
+    def visitCoalesceExpression(self, ctx:PhpParser.CoalesceExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#assignable.
+    def visitAssignable(self, ctx:PhpParser.AssignableContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#arrayCreation.
+    def visitArrayCreation(self, ctx:PhpParser.ArrayCreationContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#arrayDestructuring.
+    def visitArrayDestructuring(self, ctx:PhpParser.ArrayDestructuringContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#indexedDestructItem.
+    def visitIndexedDestructItem(self, ctx:PhpParser.IndexedDestructItemContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#keyedDestructItem.
+    def visitKeyedDestructItem(self, ctx:PhpParser.KeyedDestructItemContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#lambdaFunctionExpr.
+    def visitLambdaFunctionExpr(self, ctx:PhpParser.LambdaFunctionExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#matchExpr.
+    def visitMatchExpr(self, ctx:PhpParser.MatchExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#matchItem.
+    def visitMatchItem(self, ctx:PhpParser.MatchItemContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#newExpr.
+    def visitNewExpr(self, ctx:PhpParser.NewExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#assignmentOperator.
+    def visitAssignmentOperator(self, ctx:PhpParser.AssignmentOperatorContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#yieldExpression.
+    def visitYieldExpression(self, ctx:PhpParser.YieldExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#arrayItemList.
+    def visitArrayItemList(self, ctx:PhpParser.ArrayItemListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#arrayItem.
+    def visitArrayItem(self, ctx:PhpParser.ArrayItemContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#lambdaFunctionUseVars.
+    def visitLambdaFunctionUseVars(self, ctx:PhpParser.LambdaFunctionUseVarsContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#lambdaFunctionUseVar.
+    def visitLambdaFunctionUseVar(self, ctx:PhpParser.LambdaFunctionUseVarContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#qualifiedStaticTypeRef.
+    def visitQualifiedStaticTypeRef(self, ctx:PhpParser.QualifiedStaticTypeRefContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#typeRef.
+    def visitTypeRef(self, ctx:PhpParser.TypeRefContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#anonymousClass.
+    def visitAnonymousClass(self, ctx:PhpParser.AnonymousClassContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#indirectTypeRef.
+    def visitIndirectTypeRef(self, ctx:PhpParser.IndirectTypeRefContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#qualifiedNamespaceName.
+    def visitQualifiedNamespaceName(self, ctx:PhpParser.QualifiedNamespaceNameContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#namespaceNameList.
+    def visitNamespaceNameList(self, ctx:PhpParser.NamespaceNameListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#namespaceNameTail.
+    def visitNamespaceNameTail(self, ctx:PhpParser.NamespaceNameTailContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#qualifiedNamespaceNameList.
+    def visitQualifiedNamespaceNameList(self, ctx:PhpParser.QualifiedNamespaceNameListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#arguments.
+    def visitArguments(self, ctx:PhpParser.ArgumentsContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#actualArgument.
+    def visitActualArgument(self, ctx:PhpParser.ActualArgumentContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#argumentName.
+    def visitArgumentName(self, ctx:PhpParser.ArgumentNameContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#constantInitializer.
+    def visitConstantInitializer(self, ctx:PhpParser.ConstantInitializerContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#constant.
+    def visitConstant(self, ctx:PhpParser.ConstantContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#literalConstant.
+    def visitLiteralConstant(self, ctx:PhpParser.LiteralConstantContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#numericConstant.
+    def visitNumericConstant(self, ctx:PhpParser.NumericConstantContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#classConstant.
+    def visitClassConstant(self, ctx:PhpParser.ClassConstantContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#stringConstant.
+    def visitStringConstant(self, ctx:PhpParser.StringConstantContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#string.
+    def visitString(self, ctx:PhpParser.StringContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#interpolatedStringPart.
+    def visitInterpolatedStringPart(self, ctx:PhpParser.InterpolatedStringPartContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#chainList.
+    def visitChainList(self, ctx:PhpParser.ChainListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#chain.
+    def visitChain(self, ctx:PhpParser.ChainContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#chainOrigin.
+    def visitChainOrigin(self, ctx:PhpParser.ChainOriginContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#memberAccess.
+    def visitMemberAccess(self, ctx:PhpParser.MemberAccessContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#functionCall.
+    def visitFunctionCall(self, ctx:PhpParser.FunctionCallContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#functionCallName.
+    def visitFunctionCallName(self, ctx:PhpParser.FunctionCallNameContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#actualArguments.
+    def visitActualArguments(self, ctx:PhpParser.ActualArgumentsContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#chainBase.
+    def visitChainBase(self, ctx:PhpParser.ChainBaseContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#keyedFieldName.
+    def visitKeyedFieldName(self, ctx:PhpParser.KeyedFieldNameContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#keyedSimpleFieldName.
+    def visitKeyedSimpleFieldName(self, ctx:PhpParser.KeyedSimpleFieldNameContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#keyedVariable.
+    def visitKeyedVariable(self, ctx:PhpParser.KeyedVariableContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#squareCurlyExpression.
+    def visitSquareCurlyExpression(self, ctx:PhpParser.SquareCurlyExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#assignmentList.
+    def visitAssignmentList(self, ctx:PhpParser.AssignmentListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#assignmentListElement.
+    def visitAssignmentListElement(self, ctx:PhpParser.AssignmentListElementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#modifier.
+    def visitModifier(self, ctx:PhpParser.ModifierContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#identifier.
+    def visitIdentifier(self, ctx:PhpParser.IdentifierContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#memberModifier.
+    def visitMemberModifier(self, ctx:PhpParser.MemberModifierContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#magicConstant.
+    def visitMagicConstant(self, ctx:PhpParser.MagicConstantContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#primitiveType.
+    def visitPrimitiveType(self, ctx:PhpParser.PrimitiveTypeContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PhpParser#castOperation.
+    def visitCastOperation(self, ctx:PhpParser.CastOperationContext):
         return self.visitChildren(ctx)
 
 
 
-del PHPParser
+del PhpParser
