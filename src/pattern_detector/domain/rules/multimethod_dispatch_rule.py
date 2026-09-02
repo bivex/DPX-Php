@@ -50,7 +50,6 @@ _MATCH_KEYWORDS = frozenset({
     "match (",
     "gettype(",
     "get_class(",
-    "instanceof",
 })
 
 # Builder-style registration patterns in body text
@@ -115,7 +114,7 @@ class MultimethodDispatchRule(BasePatternRule):
         name_lower = rec.name.lower()
         is_dispatcher_named = any(k in name_lower for k in (
             "dispatcher", "dispatch", "bus", "router", "resolver",
-            "registry", "handler", "locator", "factory",
+            "registry", "locator",
         ))
 
         # Find dispatcher-style fields

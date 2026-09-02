@@ -9,6 +9,9 @@ from pattern_detector.domain.detection import Detection
 from pattern_detector.domain.rules.base import BasePatternRule
 from pattern_detector.domain.value_objects import PatternCategory, PatternType
 
+_PHP_CHAIN_CALL_RE = re.compile(
+    r"(\$[a-zA-Z_][a-zA-Z0-9_]*(?:\s*(?:->|\?->)\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\([^)]*\)){2,})"
+)
 _CHAIN_CALL_RE = re.compile(r"\b([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*\s*\([^)]*\)){2,})")
 
 
@@ -149,13 +152,16 @@ class LawOfDemeterRule(BasePatternRule):
             if self.is_test_entity(fn):
                 continue
             body = fn.body_text or ""
-            # Look for expressions with chained method invocations: expr.m1().m2().m3()
-            matches = _CHAIN_CALL_RE.finditer(body)
+            # Look for expressions with chained method invocations: $expr->m1()->m2()->m3() or expr.m1().m2()
+            matches = list(_PHP_CHAIN_CALL_RE.finditer(body)) + list(_CHAIN_CALL_RE.finditer(body))
 
             for match in matches:
                 chain_snippet = match.group(1).strip()
                 # Split chained calls
-                parts = [p.split("(")[0].strip() for p in chain_snippet.split(".") if p.strip()]
+                if "->" in chain_snippet or "?->" in chain_snippet:
+                    parts = [p.split("(")[0].strip().lstrip("$") for p in re.split(r"->|\?->", chain_snippet) if p.strip()]
+                else:
+                    parts = [p.split("(")[0].strip().lstrip("$") for p in chain_snippet.split(".") if p.strip()]
 
                 # Filter out fluent stream and builder calls
                 is_fluent = any(

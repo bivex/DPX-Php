@@ -37,7 +37,7 @@ class AbstractFactoryRule(BasePatternRule):
 
         is_factory_proto = "factory" in name_lower
         factory_methods = [
-            m for m in proto.methods if m.name.lower().startswith(("create-", "make-", "new-", "create", "make", "new"))
+            m for m in proto.methods if self._is_creation_method(m.name)
         ]
 
         if len(factory_methods) < 2 and not (len(factory_methods) >= 1 and is_factory_proto):
@@ -87,3 +87,16 @@ class AbstractFactoryRule(BasePatternRule):
                 )
             )
         return evidences
+
+    def _is_creation_method(self, name: str) -> bool:
+        nl = name.lower()
+        if nl.startswith(("created", "makedate", "make_date")):
+            return False
+        if nl.startswith(("create-", "make-", "new-", "build-", "create_", "make_", "new_", "build_")):
+            return True
+        if nl in ("create", "make", "build", "new"):
+            return True
+        return any(
+            nl.startswith(prefix) and len(nl) > len(prefix) and name[len(prefix)].isupper()
+            for prefix in ("create", "make", "new", "build")
+        )

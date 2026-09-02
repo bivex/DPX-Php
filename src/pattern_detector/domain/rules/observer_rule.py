@@ -230,8 +230,8 @@ class ObserverPatternRule(BasePatternRule):
 
     def _is_subject_candidate(self, name: str, has_obs_field: bool, has_obs_methods: bool) -> bool:
         name_lower = name.lower()
-        is_named = "subject" in name_lower or "observable" in name_lower
-        return has_obs_field or (has_obs_methods and is_named)
+        is_named = any(k in name_lower for k in ("subject", "observable", "eventemitter", "eventdispatcher"))
+        return (has_obs_field and has_obs_methods) or (is_named and (has_obs_field or has_obs_methods))
 
     def _get_subject_method_names(self, rec: Any) -> list[str]:
         prefixes = ("attach", "detach", "register", "unregister", "subscribe", "notify")
@@ -283,5 +283,5 @@ class ObserverPatternRule(BasePatternRule):
             return False
         return any(
             k in f
-            for k in ("observers", "listeners", "subscribers", "views", "watchers", "observer_list", "listener_list")
+            for k in ("observers", "listeners", "subscribers", "watchers", "observer_list", "listener_list")
         )

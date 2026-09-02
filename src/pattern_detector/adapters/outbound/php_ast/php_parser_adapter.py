@@ -208,7 +208,7 @@ class _PhpSourceExtractor:
 
             body = self._extract_balanced_braces_content(self.source_code, match.end() - 1)
             fields, constructor_promoted = self._extract_class_fields(body)
-            fields.extend(constructor_promoted)
+            fields = list(dict.fromkeys(fields + constructor_promoted))
 
             methods = self._extract_class_methods(class_name, body, line)
 

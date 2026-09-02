@@ -106,8 +106,13 @@ class ChainOfResponsibilityRule(BasePatternRule):
         is_handler_named = any(k in name_lower for k in ("handler", "filter", "processor"))
         successor_fields = self._find_successor_fields(rec.fields)
         chain_methods = self._find_chain_methods(rec.methods)
+        has_successor_setter = any(
+            k in m.name.lower()
+            for m in rec.methods
+            for k in ("setsuccessor", "setnext", "appendhandler", "set_next", "set_successor")
+        )
 
-        if not self._is_handler_candidate(is_handler_named, len(successor_fields) > 0, len(chain_methods) > 0):
+        if not self._is_handler_candidate(is_handler_named, len(successor_fields) > 0, len(chain_methods) > 0, has_successor_setter):
             return None
 
         evidences = self._build_handler_evidences(rec, is_handler_named, successor_fields, chain_methods)
@@ -120,15 +125,19 @@ class ChainOfResponsibilityRule(BasePatternRule):
             base_score=0.30,
         )
 
-    def _is_handler_candidate(self, is_named: bool, has_successor: bool, has_methods: bool) -> bool:
-        return (is_named and (has_successor or has_methods)) or (has_successor and has_methods)
+    def _is_handler_candidate(self, is_named: bool, has_successor: bool, has_methods: bool, has_successor_setter: bool) -> bool:
+        if has_successor and (has_methods or is_named):
+            return True
+        if has_successor_setter and (has_methods or is_named):
+            return True
+        return False
 
     def _find_successor_fields(self, fields: list[str]) -> list[str]:
-        keywords = ("successor", "next", "handler", "parent", "chain")
+        keywords = ("successor", "next", "nexthandler", "next_handler", "inner_handler", "wrapped_handler")
         results = []
         for f in fields:
             f_lower = f.lower()
-            if any(k in f_lower for k in keywords):
+            if any(k in f_lower for k in keywords) or f_lower in ("handler", "_handler"):
                 results.append(f)
         return results
 

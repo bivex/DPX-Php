@@ -168,10 +168,16 @@ class CommandPatternRule(BasePatternRule):
 
     def _is_command_proto(self, proto: Any) -> bool:
         name_lower = proto.name.lower()
-        if any(k in name_lower for k in ("command", "cmd", "action", "executable", "task", "job")):
+        if any(exc in name_lower for exc in ("transaction", "interaction", "fraction", "extraction", "reaction")):
+            return False
+        keywords = ("command", "cmd", "action", "executable", "task", "job")
+        if any(
+            name_lower.startswith(k) or name_lower.endswith((k, f"{k}interface", f"{k}_interface"))
+            for k in keywords
+        ):
             return True
         cmd_methods = ("execute", "exec", "undo", "redo")
         for m in proto.methods:
-            if m.name.lower() in cmd_methods:
+            if m.name.split(".")[-1].lower() in cmd_methods:
                 return True
         return False

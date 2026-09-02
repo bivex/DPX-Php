@@ -98,7 +98,7 @@ class FacadePatternRule(BasePatternRule):
         is_facade_named = "facade" in rec.name.lower()
         subsystem_fields = self._find_subsystem_fields(rec.fields)
 
-        if not self._is_facade_record_candidate(is_facade_named, len(subsystem_fields)):
+        if not self._is_facade_record_candidate(rec.name, is_facade_named, len(subsystem_fields)):
             return None
 
         evidences = self._build_facade_record_evidences(rec, is_facade_named, subsystem_fields)
@@ -112,8 +112,17 @@ class FacadePatternRule(BasePatternRule):
             base_score=0.30,
         )
 
-    def _is_facade_record_candidate(self, is_named: bool, field_count: int) -> bool:
-        return (is_named and field_count >= 1) or field_count >= 2
+    def _is_facade_record_candidate(self, rec_name: str, is_named: bool, field_count: int) -> bool:
+        if is_named and field_count >= 1:
+            return True
+        excluded_suffixes = (
+            "Controller", "Action", "Command", "Handler", "Listener", "Subscriber",
+            "Job", "Middleware", "Repository", "Model", "Entity", "Service", "Provider",
+            "Factory", "Builder", "Strategy", "Adapter", "Rule", "Test"
+        )
+        if any(rec_name.endswith(sfx) for sfx in excluded_suffixes):
+            return False
+        return field_count >= 3
 
     def _find_subsystem_fields(self, fields: list[str]) -> list[str]:
         keywords = ("subsystem", "service", "module", "engine", "system", "parser", "lexer", "db", "client", "worker")

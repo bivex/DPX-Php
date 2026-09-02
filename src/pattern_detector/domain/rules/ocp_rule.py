@@ -10,9 +10,10 @@ from pattern_detector.domain.detection import Detection
 from pattern_detector.domain.rules.base import BasePatternRule
 from pattern_detector.domain.value_objects import Evidence, PatternCategory, PatternType
 
+_INSTANCEOF_RE = re.compile(r"\binstanceof\s+([A-Za-z0-9_\\]+)")
+_IS_A_RE = re.compile(r"\bis_a\s*\([^,]+,\s*['\"]?([A-Za-z0-9_\\]+)['\"]?")
 _ISINSTANCE_RE = re.compile(r"\bisinstance\s*\(\s*[^,]+,\s*([A-Za-z0-9_]+)\s*\)")
 _TYPE_CHECK_RE = re.compile(r"\btype\s*\([^)]+\)\s*(?:is|==)\s*([A-Za-z0-9_]+)")
-_DYNAMIC_CAST_RE = re.compile(r"\bdynamic_cast\s*<\s*([A-Za-z0-9_:]+)\s*[\*&]\s*>\s*\(")
 
 
 class OpenClosedPrincipleRule(BasePatternRule):
@@ -46,19 +47,20 @@ class OpenClosedPrincipleRule(BasePatternRule):
         if self.is_test_entity(fn):
             return None
         simple_name = fn.name.split(".")[-1]
-        if simple_name in ("__eq__", "__ne__", "__lt__", "__gt__", "__le__", "__ge__", "__init__"):
+        if simple_name in ("equals", "__eq__", "__ne__", "__lt__", "__gt__", "__le__", "__ge__", "__init__", "__construct"):
             return None
 
         body = fn.body_text or ""
+        instanceof_matches = [m.split("\\")[-1] for m in _INSTANCEOF_RE.findall(body) if m.lower() not in ("self", "static")]
+        is_a_matches = [m.split("\\")[-1] for m in _IS_A_RE.findall(body) if m.lower() not in ("self", "static")]
         isinstance_matches = _ISINSTANCE_RE.findall(body)
         type_matches = _TYPE_CHECK_RE.findall(body)
-        cast_matches = _DYNAMIC_CAST_RE.findall(body)
-        total_type_checks = len(isinstance_matches) + len(type_matches) + len(cast_matches)
+        total_type_checks = len(instanceof_matches) + len(is_a_matches) + len(isinstance_matches) + len(type_matches)
 
-        if total_type_checks < 2:
+        if total_type_checks < 3:
             return None
 
-        all_types = isinstance_matches + type_matches + cast_matches
+        all_types = list(dict.fromkeys(instanceof_matches + is_a_matches + isinstance_matches + type_matches))
         types_str = ", ".join(all_types[:4])
         evidences: list[Evidence] = [
             self.evidence(

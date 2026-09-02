@@ -74,11 +74,11 @@ class CompositePatternRule(BasePatternRule):
         is_composite_field = any(
             k in f
             for f in fields_lower
-            for k in ("children", "items", "components", "elements", "nodes", "members", "subs")
+            for k in ("children", "items", "components", "elements", "nodes", "members", "subcomponents", "subnodes")
         )
         return is_composite_field or any(
             k in rec.name.lower()
-            for k in ("composite", "group", "container", "panel", "tree", "compound", "sentence", "word")
+            for k in ("composite", "group", "container", "panel", "tree", "compound")
         )
 
     def _build_composite_evidences(self, proto: Any, composite_recs: list[Any], leaf_recs: list[Any]) -> list[Evidence]:

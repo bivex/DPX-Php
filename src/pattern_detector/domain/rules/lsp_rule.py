@@ -31,12 +31,15 @@ class LiskovSubstitutionRule(BasePatternRule):
             for method in rec.methods:
                 body = method.body_text or ""
                 lines = [line.strip() for line in body.split("\n")]
-                # Check for explicit raise statement refusing parent contract
+                # Check for explicit throw new / raise statement refusing parent contract
                 has_unsupported_op = any(
-                    line.startswith("raise ")
+                    (line.startswith("throw new ") or line.startswith("raise "))
                     and any(
                         exc in line
                         for exc in (
+                            "BadMethodCallException",
+                            "LogicException",
+                            "NotImplementedException",
                             "NotImplementedError",
                             "UnsupportedOperation",
                             "UnsupportedOperationException",

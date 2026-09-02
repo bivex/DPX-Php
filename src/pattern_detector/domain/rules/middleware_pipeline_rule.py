@@ -120,11 +120,15 @@ class MiddlewarePipelineRule(BasePatternRule):
         next_param: str | None = None
         for m in process_methods:
             params = m.parameter_lists[0] if m.parameter_lists else []
+            body = m.body_text or ""
             for p in params:
                 if any(keyword in p.lower() for keyword in _NEXT_DELEGATE_PATTERNS):
-                    has_next_delegation = True
-                    next_param = p
-                    break
+                    if f"${p}(" in body or f"${p}->" in body:
+                        has_next_delegation = True
+                        next_param = p
+                        break
+            if has_next_delegation:
+                break
 
         evidences: list[Evidence] = []
 

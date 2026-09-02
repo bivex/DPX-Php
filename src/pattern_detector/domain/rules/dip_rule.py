@@ -9,10 +9,8 @@ from pattern_detector.domain.detection import Detection
 from pattern_detector.domain.rules.base import BasePatternRule
 from pattern_detector.domain.value_objects import PatternCategory, PatternType
 
-_NEW_EXPR_RE = re.compile(
-    r"\b(?:new\s+([A-Za-z0-9_]+)|std::make_unique<([A-Za-z0-9_]+)>|std::make_shared<([A-Za-z0-9_]+)>)"
-)
-_PYTHON_CONSTRUCTOR_RE = re.compile(r"\b([A-Z][A-Za-z0-9_]+)\s*\(")
+_NEW_EXPR_RE = re.compile(r"\bnew\s+([A-Za-z0-9_\\]+)")
+_STATIC_FACTORY_RE = re.compile(r"\b([A-Za-z0-9_\\]+)::(?:create|make|build)\b")
 
 
 from typing import Any
@@ -125,23 +123,24 @@ class DependencyInversionRule(BasePatternRule):
         body = m.body_text or ""
         suffixes = ("Repository", "Client", "Database", "Dao", "Gateway")
         new_deps = self._extract_new_expr_concrete_deps(body, suffixes)
-        ctor_deps = self._extract_constructor_concrete_deps(body, m.calls, rec_name, suffixes)
+        ctor_deps = self._extract_constructor_concrete_deps(body, rec_name, suffixes)
         return new_deps + ctor_deps
 
     def _extract_new_expr_concrete_deps(self, body: str, suffixes: tuple[str, ...]) -> list[str]:
         results: list[str] = []
         for raw_match in _NEW_EXPR_RE.findall(body):
-            cl = raw_match[0] if isinstance(raw_match, tuple) and raw_match else str(raw_match)
+            cl = raw_match.split("\\")[-1]
             if cl.endswith(suffixes):
                 results.append(cl)
         return results
 
     def _extract_constructor_concrete_deps(
-        self, body: str, calls: list[str], rec_name: str, suffixes: tuple[str, ...]
+        self, body: str, rec_name: str, suffixes: tuple[str, ...]
     ) -> list[str]:
         results: list[str] = []
-        candidates = _PYTHON_CONSTRUCTOR_RE.findall(body) + calls
+        candidates = _STATIC_FACTORY_RE.findall(body)
         for cl in candidates:
-            if cl.endswith(suffixes) and cl != rec_name:
-                results.append(cl)
+            simple_cl = cl.split("\\")[-1]
+            if simple_cl.endswith(suffixes) and simple_cl != rec_name:
+                results.append(simple_cl)
         return results

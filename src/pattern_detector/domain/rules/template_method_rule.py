@@ -58,13 +58,14 @@ class TemplateMethodRule(BasePatternRule):
         )
 
     def _is_bracket_candidate(self, is_with: bool, is_macro: bool, has_try: bool, has_hook: bool) -> bool:
-        return (is_with and (is_macro or has_try or has_hook)) or (has_try and has_hook)
+        return (is_with and (is_macro or has_try or has_hook)) or (has_try and has_hook and is_with)
 
     def _has_bracket_hook_param(self, fn: Any) -> bool:
-        hook_names = ("f", "callback", "handler", "body", "action", "task")
+        hook_names = ("callback", "callable", "handler", "fn", "closure", "operation")
+        body = fn.body_text or ""
         for plist in fn.parameter_lists:
             for p in plist:
-                if p.lower() in hook_names:
+                if p.lower() in hook_names and (f"${p}(" in body or f"${p}->" in body or f"call_user_func(${p}" in body):
                     return True
         return False
 

@@ -60,7 +60,7 @@ class DecoratorPatternRule(BasePatternRule):
         )
 
     def _find_handler_param(self, fn: Any) -> tuple[bool, str]:
-        valid_names = ("handler", "app", "f", "delegate", "wrapped", "next-handler")
+        valid_names = ("handler", "app", "delegate", "wrapped", "next_handler", "inner_handler")
         for params in fn.parameter_lists:
             for p in params:
                 if p.lower() in valid_names:
@@ -72,7 +72,7 @@ class DecoratorPatternRule(BasePatternRule):
     ) -> bool:
         if not evidences:
             return False
-        return len(evidences) >= 2 or (returns_closure and has_param) or (is_wrap and returns_closure)
+        return (returns_closure and has_param) or (is_wrap and (returns_closure or has_param))
 
     def _build_functional_decorator_evidences(
         self, fn: Any, has_handler_param: bool, handler_param_name: str, is_wrap_naming: bool

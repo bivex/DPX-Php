@@ -128,7 +128,16 @@ class StatePatternRule(BasePatternRule):
 
     def _analyze_state_protocol(self, proto: Any, model: CodeModel) -> Detection | None:
         name_lower = proto.name.lower()
-        if not ("state" in name_lower and "strategy" not in name_lower):
+        if any(exc in name_lower for exc in ("statement", "estate", "stats", "strategy")):
+            return None
+
+        is_state_proto = (
+            name_lower.startswith("state")
+            or name_lower.endswith(("state", "stateinterface", "state_interface"))
+            or "_state" in name_lower
+            or "fsm" in name_lower
+        )
+        if not is_state_proto:
             return None
 
         rec_impls = model.find_records_implementing(proto.name)

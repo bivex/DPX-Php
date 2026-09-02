@@ -137,7 +137,7 @@ class FactoryPatternRule(BasePatternRule):
 
         creation_methods = self._get_creation_methods(proto)
         rec_impls = model.find_records_implementing(proto.name)
-        if not creation_methods and not rec_impls:
+        if not creation_methods:
             return None
 
         evidences = self._build_factory_proto_evidences(proto, creation_methods, rec_impls)
@@ -155,13 +155,23 @@ class FactoryPatternRule(BasePatternRule):
         name_lower = name.lower()
         if "builder" in name_lower:
             return False
-        return any(k in name_lower for k in ("creator", "factory", "provider"))
+        return any(k in name_lower for k in ("creator", "factory"))
 
     def _get_creation_methods(self, proto: Any) -> list[Any]:
         results = []
-        prefixes = ("create", "make", "new")
         for m in proto.methods:
-            if m.name.lower().startswith(prefixes):
+            name = m.name.split(".")[-1]
+            nl = name.lower()
+            if nl.startswith(("created", "makedate", "make_date")):
+                continue
+            if nl.startswith(("create-", "make-", "new-", "build-", "create_", "make_", "new_", "build_")):
+                results.append(m)
+            elif nl in ("create", "make", "build", "new"):
+                results.append(m)
+            elif any(
+                nl.startswith(prefix) and len(nl) > len(prefix) and name[len(prefix)].isupper()
+                for prefix in ("create", "make", "new", "build")
+            ):
                 results.append(m)
         return results
 

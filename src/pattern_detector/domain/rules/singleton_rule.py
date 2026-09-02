@@ -68,14 +68,16 @@ class SingletonPatternRule(BasePatternRule):
         return results
 
     def _analyze_singleton_record(self, rec: Any) -> Detection | None:
-        has_instance_field = any("instance" in f.lower() or f == rec.name for f in rec.fields)
+        has_instance_field = any(f.lower() in ("instance", "_instance", "s_instance", "singleton_instance") for f in rec.fields)
         get_instance_methods = self._find_get_instance_methods(rec.methods, has_instance_field)
+        is_singleton_named = "singleton" in rec.name.lower()
 
-        if not get_instance_methods and not has_instance_field:
+        # A singleton requires an accessor method (getInstance/shared/instance) or explicit singleton naming
+        if not get_instance_methods and not is_singleton_named:
             return None
 
-        # If there's no static instance field, we require explicit singleton accessor naming (getInstance, shared, defaultInstance)
-        if not has_instance_field and not any(
+        # If there's no static instance field and not singleton named, we require explicit singleton accessor naming
+        if not has_instance_field and not is_singleton_named and not any(
             m.name.lower().split(".")[-1] in ("getinstance", "get_instance", "getdefaultinstance", "shared", "sharedinstance")
             for m in get_instance_methods
         ):
