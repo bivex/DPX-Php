@@ -6,7 +6,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
-from antlr4 import CommonTokenStream, InputStream
+from antlr4 import CommonTokenStream, InputStream, PredictionMode
 from antlr4.error.ErrorListener import ErrorListener
 
 from pattern_detector.adapters.outbound.php_antlr.generated import (
@@ -322,8 +322,16 @@ class AntlrPhpParserAdapter(ParserPort):
             parser = PhpParser(token_stream)
             parser.removeErrorListeners()
             parser.addErrorListener(SilentErrorListener())
+            parser._interp.predictionMode = PredictionMode.SLL
 
-            tree = parser.htmlDocument()
+            try:
+                tree = parser.htmlDocument()
+            except Exception:  # noqa: BLE001
+                token_stream.seek(0)
+                parser.reset()
+                parser._interp.predictionMode = PredictionMode.LL
+                tree = parser.htmlDocument()
+
             visitor = PhpModelVisitor(file_path=file_path, source_code=source_code, token_stream=token_stream)
             visitor.visit(tree)
 

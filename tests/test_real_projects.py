@@ -75,3 +75,16 @@ def test_symfony_event_dispatcher_real_project_scan(native_scanner) -> None:
 
     detected_patterns = {d.pattern_type.value for d in report.detections}
     assert "observer" in detected_patterns or "multimethod_dispatch" in detected_patterns
+
+
+def test_antlr_real_project_scan() -> None:
+    sms_dir = BENCHMARKS_DIR / "espocrm_sms_providers"
+    if not sms_dir.exists():
+        pytest.skip("espocrm_sms_providers benchmark not present")
+
+    container = create_container(parser_type="antlr")
+    scanner = container.get_scanner()
+    report = scanner.scan_path(str(sms_dir))
+
+    assert report.scanned_files_count >= 10
+    assert report.total_detections_count > 0

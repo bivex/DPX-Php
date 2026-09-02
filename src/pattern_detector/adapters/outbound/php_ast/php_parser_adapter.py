@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import bisect
 import os
 import re
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any
 
 from pattern_detector.domain.code_model import (
     CodeModel,
@@ -83,6 +83,65 @@ _PHP_BUILTINS_AND_KEYWORDS = frozenset(
     }
 )
 
+_RE_NEWLINE = re.compile(r"\n")
+
+_RE_NAMESPACE = re.compile(r"\bnamespace\s+([a-zA-Z0-9_\\]+)\s*[;{]")
+_RE_USE = re.compile(r"\buse\s+(?:function\s+|const\s+)?([a-zA-Z0-9_\\,\s{}]+);")
+_RE_USE_PREFIX = re.compile(r"([a-zA-Z0-9_\\]+)\s*\{\s*(.+)\s*\}")
+
+_RE_INTERFACE = re.compile(
+    r"(?:/\*\*(?P<doc>[\s\S]*?)\*/\s*)?"
+    r"(?:#\[[^\]]+\]\s*)*"
+    r"\binterface\s+(?P<name>[a-zA-Z0-9_]+)"
+    r"(?:\s+extends\s+(?P<extends>[a-zA-Z0-9_\\,\s]+))?\s*\{",
+    re.MULTILINE,
+)
+_RE_INTERFACE_METHOD = re.compile(r"public\s+function\s+([a-zA-Z0-9_]+)\s*\(", re.MULTILINE)
+
+_RE_CLASS = re.compile(
+    r"(?:/\*\*(?P<doc>[\s\S]*?)\*/\s*)?"
+    r"(?P<attrs>(?:#\[[^\]]+\]\s*)*)"
+    r"(?P<modifiers>(?:abstract\s+|final\s+|readonly\s+)*)"
+    r"(?P<kind>class|trait|enum)\s+(?P<name>[a-zA-Z0-9_]+)"
+    r"(?:\s+extends\s+(?P<extends>[a-zA-Z0-9_\\]+))?"
+    r"(?:\s+implements\s+(?P<implements>[a-zA-Z0-9_\\,\s]+))?\s*\{",
+    re.MULTILINE,
+)
+
+_RE_CLASS_METHOD = re.compile(
+    r"(?:/\*\*(?P<doc>[\s\S]*?)\*/\s*)?"
+    r"(?P<attrs>(?:#\[[^\]]+\]\s*)*)"
+    r"(?P<modifiers>(?:abstract\s+|final\s+|public\s+|protected\s+|private\s+|static\s+)*)"
+    r"function\s+(?P<name>[a-zA-Z0-9_]+)\s*\((?P<params>.*?)\)"
+    r"(?:\s*:\s*(?P<return>[a-zA-Z0-9_\\?|&]+))?\s*(?P<body>\{|;)",
+    re.DOTALL,
+)
+
+_RE_STANDALONE_FN = re.compile(
+    r"function\s+([a-zA-Z0-9_]+)\s*\((.*?)\)\s*(?::\s*[a-zA-Z0-9_\\?|&]+\s*)?\{",
+    re.MULTILINE,
+)
+
+_RE_METHOD_CALL = re.compile(r"(?:\$([a-zA-Z0-9_]+)->|([a-zA-Z0-9_]+)::)([a-zA-Z0-9_]+)\s*\(")
+_RE_STANDALONE_CALL = re.compile(r"\b([a-zA-Z0-9_]+)\s*\(")
+_RE_VAR_WRITE = re.compile(r"\$([a-zA-Z0-9_]+(?:\s*->\s*[a-zA-Z0-9_]+)?)\s*=(?!=)")
+_RE_VAR_READ = re.compile(r"\$([a-zA-Z0-9_]+)")
+
+_RE_INVOCATION_CALL = re.compile(
+    r"(?:\$([a-zA-Z0-9_]+)->|([a-zA-Z0-9_]+)::|(?:\b([a-zA-Z0-9_]+)))\s*\((.*?)\)",
+    re.DOTALL,
+)
+_RE_ASSIGN_FLOW = re.compile(r"\$([a-zA-Z0-9_]+)\s*=\s*([^;]+);")
+_RE_RETURN_FLOW = re.compile(r"\breturn\s+([^;]+);")
+
+_RE_CLASS_PROP = re.compile(
+    r"(?:private|protected|public|var)\s+(?:static\s+)?(?:readonly\s+)?(?:[a-zA-Z0-9_\\?|&]+\s+)?\$([a-zA-Z0-9_]+)"
+)
+_RE_CTOR_PARAMS = re.compile(r"function\s+__construct\s*\((.*?)\)", re.DOTALL)
+_RE_PROMOTED_PROP = re.compile(
+    r"(?:private|protected|public)\s+(?:readonly\s+)?(?:[a-zA-Z0-9_\\?|&]+\s+)?\$([a-zA-Z0-9_]+)"
+)
+
 
 class _PhpSourceExtractor:
     """Extracts structural and semantic domain models from PHP source code."""
@@ -99,20 +158,23 @@ class _PhpSourceExtractor:
         self.functions: dict[str, FunctionModel] = {}
         self.states: dict[str, StateModel] = {}
 
+        # Precompute line break offsets for fast O(log L) line number lookups
+        self._line_offsets: list[int] = [0] + [m.start() + 1 for m in _RE_NEWLINE.finditer(source_code)]
+        self._class_spans: list[tuple[int, int]] = []
+
     def extract(self) -> None:
         """Parse source code into domain models."""
         # 1. Extract Namespace
-        ns_match = re.search(r'\bnamespace\s+([a-zA-Z0-9_\\]+)\s*[;{]', self.source_code)
+        ns_match = _RE_NAMESPACE.search(self.source_code)
         if ns_match:
             self.namespace_name = ns_match.group(1).replace("\\", ".")
 
         # 2. Extract use statements (imports)
-        use_pattern = re.compile(r'\buse\s+(?:function\s+|const\s+)?([a-zA-Z0-9_\\,\s{}]+);')
-        for match in use_pattern.finditer(self.source_code):
+        for match in _RE_USE.finditer(self.source_code):
             raw_use = match.group(1).strip()
             # Handle group use: use App\Services\{A, B as C};
             if "{" in raw_use and "}" in raw_use:
-                prefix_match = re.match(r'([a-zA-Z0-9_\\]+)\s*\{\s*(.+)\s*\}', raw_use)
+                prefix_match = _RE_USE_PREFIX.match(raw_use)
                 if prefix_match:
                     prefix = prefix_match.group(1).rstrip("\\")
                     items = [i.strip() for i in prefix_match.group(2).split(",") if i.strip()]
@@ -140,19 +202,11 @@ class _PhpSourceExtractor:
         self._extract_standalone_functions()
 
     def _get_line_number(self, index: int) -> int:
-        return self.source_code.count("\n", 0, index) + 1
+        return bisect.bisect_right(self._line_offsets, index)
 
     def _extract_interfaces(self) -> None:
         # Match interface Name [extends Base1, Base2] { ... }
-        pattern = re.compile(
-            r'(?:/\*\*(?P<doc>[\s\S]*?)\*/\s*)?'
-            r'(?:#\[[^\]]+\]\s*)*'
-            r'\binterface\s+(?P<name>[a-zA-Z0-9_]+)'
-            r'(?:\s+extends\s+(?P<extends>[a-zA-Z0-9_\\,\s]+))?\s*\{',
-            re.MULTILINE,
-        )
-
-        for match in pattern.finditer(self.source_code):
+        for match in _RE_INTERFACE.finditer(self.source_code):
             iface_name = match.group("name")
             start_pos = match.start()
             line = self._get_line_number(start_pos)
@@ -160,6 +214,7 @@ class _PhpSourceExtractor:
             doc = (match.group("doc") or "").strip()
 
             body = self._extract_balanced_braces_content(self.source_code, match.end() - 1)
+            self._class_spans.append((start_pos, match.end() + len(body)))
             methods = self._extract_interface_methods(body, line)
 
             self.protocols[iface_name] = ProtocolModel(
@@ -171,19 +226,8 @@ class _PhpSourceExtractor:
             )
 
     def _extract_classes(self) -> None:
-        pattern = re.compile(
-            r'(?:/\*\*(?P<doc>[\s\S]*?)\*/\s*)?'
-            r'(?P<attrs>(?:#\[[^\]]+\]\s*)*)'
-            r'(?P<modifiers>(?:abstract\s+|final\s+|readonly\s+)*)'
-            r'(?P<kind>class|trait|enum)\s+(?P<name>[a-zA-Z0-9_]+)'
-            r'(?:\s+extends\s+(?P<extends>[a-zA-Z0-9_\\]+))?'
-            r'(?:\s+implements\s+(?P<implements>[a-zA-Z0-9_\\,\s]+))?\s*\{',
-            re.MULTILINE,
-        )
-
-        for match in pattern.finditer(self.source_code):
+        for match in _RE_CLASS.finditer(self.source_code):
             class_name = match.group("name")
-            kind = match.group("kind")
             modifiers = match.group("modifiers") or ""
             is_abstract = "abstract" in modifiers
             doc = (match.group("doc") or "").strip()
@@ -207,6 +251,7 @@ class _PhpSourceExtractor:
             loc = SourceLocation(file_path=self.file_path, line=line, column=1)
 
             body = self._extract_balanced_braces_content(self.source_code, match.end() - 1)
+            self._class_spans.append((start_pos, match.end() + len(body)))
             fields, constructor_promoted = self._extract_class_fields(body)
             fields = list(dict.fromkeys(fields + constructor_promoted))
 
@@ -235,13 +280,17 @@ class _PhpSourceExtractor:
                     name=class_name,
                     namespace=self.namespace_name,
                     location=loc,
-                    methods=pure_methods if pure_methods else [MethodSignature(name=m.name.split(".")[-1], location=m.location) for m in methods],
+                    methods=pure_methods
+                    if pure_methods
+                    else [MethodSignature(name=m.name.split(".")[-1], location=m.location) for m in methods],
                     docstring=doc,
                 )
 
             # Singleton State Detection
             has_instance_field = any(f in ("instance", "_instance", "instances", "_instances") for f in fields)
-            has_get_instance = any("getinstance" in m.name.lower() or "instance" == m.name.split(".")[-1].lower() for m in methods)
+            has_get_instance = any(
+                "getinstance" in m.name.lower() or "instance" == m.name.split(".")[-1].lower() for m in methods
+            )
             if is_singleton_attr or (has_instance_field and has_get_instance):
                 self.states[f"{class_name}::$instance"] = StateModel(
                     name=f"{class_name}::$instance",
@@ -257,44 +306,34 @@ class _PhpSourceExtractor:
         promoted: list[str] = []
 
         # Standard properties: private/protected/public [static] [readonly] [type] $varName;
-        prop_pattern = re.compile(
-            r'(?:private|protected|public|var)\s+(?:static\s+)?(?:readonly\s+)?(?:[a-zA-Z0-9_\\?|&]+\s+)?\$([a-zA-Z0-9_]+)'
-        )
-        for match in prop_pattern.finditer(body):
+        for match in _RE_CLASS_PROP.finditer(body):
             fields.append(match.group(1))
 
         # Constructor property promotion: __construct(private string $foo, ...)
-        ctor_match = re.search(r'function\s+__construct\s*\((.*?)\)', body, re.DOTALL)
+        ctor_match = _RE_CTOR_PARAMS.search(body)
         if ctor_match:
             params_str = ctor_match.group(1)
-            promoted_pattern = re.compile(r'(?:private|protected|public)\s+(?:readonly\s+)?(?:[a-zA-Z0-9_\\?|&]+\s+)?\$([a-zA-Z0-9_]+)')
-            for p_match in promoted_pattern.finditer(params_str):
+            for p_match in _RE_PROMOTED_PROP.finditer(params_str):
                 promoted.append(p_match.group(1))
 
         return fields, promoted
 
     def _extract_interface_methods(self, body: str, parent_line: int) -> list[MethodSignature]:
         methods: list[MethodSignature] = []
-        pattern = re.compile(r'public\s+function\s+([a-zA-Z0-9_]+)\s*\(', re.MULTILINE)
-        for match in pattern.finditer(body):
+        body_offsets = [0] + [m.start() + 1 for m in _RE_NEWLINE.finditer(body)]
+        for match in _RE_INTERFACE_METHOD.finditer(body):
             m_name = match.group(1)
-            line = parent_line + body.count("\n", 0, match.start())
+            rel_line = bisect.bisect_right(body_offsets, match.start()) - 1
+            line = parent_line + rel_line
             loc = SourceLocation(file_path=self.file_path, line=line, column=1)
             methods.append(MethodSignature(name=m_name, location=loc))
         return methods
 
     def _extract_class_methods(self, class_name: str, body: str, parent_line: int) -> list[FunctionModel]:
         methods: list[FunctionModel] = []
-        pattern = re.compile(
-            r'(?:/\*\*(?P<doc>[\s\S]*?)\*/\s*)?'
-            r'(?P<attrs>(?:#\[[^\]]+\]\s*)*)'
-            r'(?P<modifiers>(?:abstract\s+|final\s+|public\s+|protected\s+|private\s+|static\s+)*)'
-            r'function\s+(?P<name>[a-zA-Z0-9_]+)\s*\((?P<params>.*?)\)'
-            r'(?:\s*:\s*(?P<return>[a-zA-Z0-9_\\?|&]+))?\s*(?P<body>\{|;)',
-            re.DOTALL,
-        )
+        body_offsets = [0] + [m.start() + 1 for m in _RE_NEWLINE.finditer(body)]
 
-        for match in pattern.finditer(body):
+        for match in _RE_CLASS_METHOD.finditer(body):
             fn_name = match.group("name")
             qualified_name = f"{class_name}.{fn_name}"
             modifiers = match.group("modifiers") or ""
@@ -304,7 +343,8 @@ class _PhpSourceExtractor:
             raw_params = match.group("params") or ""
             param_names = [p.strip().split("$")[-1].split("=")[0].strip() for p in raw_params.split(",") if "$" in p]
 
-            line = parent_line + body.count("\n", 0, match.start())
+            rel_line = bisect.bisect_right(body_offsets, match.start()) - 1
+            line = parent_line + rel_line
             loc = SourceLocation(file_path=self.file_path, line=line, column=1)
             doc = (match.group("doc") or "").strip()
 
@@ -340,15 +380,12 @@ class _PhpSourceExtractor:
 
     def _extract_standalone_functions(self) -> None:
         # Match free functions outside classes
-        pattern = re.compile(
-            r'function\s+([a-zA-Z0-9_]+)\s*\((.*?)\)\s*(?::\s*[a-zA-Z0-9_\\?|&]+\s*)?\{',
-            re.MULTILINE,
-        )
-        for match in pattern.finditer(self.source_code):
-            fn_name = match.group(1)
-            if any(fn_name == m.name.split(".")[-1] for rec in self.records.values() for m in rec.methods):
+        for match in _RE_STANDALONE_FN.finditer(self.source_code):
+            start_pos = match.start()
+            if any(s <= start_pos <= e for s, e in self._class_spans):
                 continue
-            line = self._get_line_number(match.start())
+            fn_name = match.group(1)
+            line = self._get_line_number(start_pos)
             loc = SourceLocation(file_path=self.file_path, line=line, column=1)
 
             raw_params = match.group(2)
@@ -380,7 +417,7 @@ class _PhpSourceExtractor:
         modifies: list[str] = []
 
         # 1. Method calls: $this->foo(), $obj->bar(), Class::baz()
-        for call_match in re.finditer(r'(?:\$([a-zA-Z0-9_]+)->|([a-zA-Z0-9_]+)::)([a-zA-Z0-9_]+)\s*\(', body):
+        for call_match in _RE_METHOD_CALL.finditer(body):
             obj = call_match.group(1) or call_match.group(2)
             method = call_match.group(3)
             call_full = f"{obj}->{method}" if call_match.group(1) else f"{obj}::{method}"
@@ -389,18 +426,18 @@ class _PhpSourceExtractor:
                 modifies.append(obj)
 
         # 2. Standalone function calls: foo(...)
-        for fn_call in re.finditer(r'\b([a-zA-Z0-9_]+)\s*\(', body):
+        for fn_call in _RE_STANDALONE_CALL.finditer(body):
             fn = fn_call.group(1)
             if fn not in _PHP_BUILTINS_AND_KEYWORDS and not fn.startswith("$"):
                 calls.append(fn)
 
         # 3. Variable writes: $var = ..., $this->field = ...
-        for w_match in re.finditer(r'\$([a-zA-Z0-9_]+(?:\s*->\s*[a-zA-Z0-9_]+)?)\s*=(?!=)', body):
-            var_name = re.sub(r'\s+', '', w_match.group(1))
+        for w_match in _RE_VAR_WRITE.finditer(body):
+            var_name = re.sub(r"\s+", "", w_match.group(1))
             writes.append(var_name)
 
         # 4. Variable reads: $varName
-        for r_match in re.finditer(r'\$([a-zA-Z0-9_]+)', body):
+        for r_match in _RE_VAR_READ.finditer(body):
             var = r_match.group(1)
             if var not in ("this", "_GET", "_POST", "_SESSION", "_SERVER", "_ENV"):
                 reads.append(var)
@@ -409,16 +446,17 @@ class _PhpSourceExtractor:
 
     def _extract_php_invocations(self, body: str, caller_name: str, parent_line: int) -> list[FunctionInvocation]:
         invocations: list[FunctionInvocation] = []
-        call_pattern = re.compile(r'(?:\$([a-zA-Z0-9_]+)->|([a-zA-Z0-9_]+)::|(?:\b([a-zA-Z0-9_]+)))\s*\((.*?)\)', re.DOTALL)
+        body_offsets = [0] + [m.start() + 1 for m in _RE_NEWLINE.finditer(body)]
 
-        for match in call_pattern.finditer(body):
+        for match in _RE_INVOCATION_CALL.finditer(body):
             target = match.group(1) or match.group(2) or match.group(3)
             if not target or target in _PHP_BUILTINS_AND_KEYWORDS:
                 continue
 
             args_str = match.group(4).strip()
             args = [a.strip() for a in args_str.split(",") if a.strip()]
-            line = parent_line + body.count("\n", 0, match.start())
+            rel_line = bisect.bisect_right(body_offsets, match.start()) - 1
+            line = parent_line + rel_line
             loc = SourceLocation(file_path=self.file_path, line=line, column=1)
 
             invocations.append(
@@ -436,6 +474,7 @@ class _PhpSourceExtractor:
         self, params: list[str], body: str, func_name: str, parent_line: int
     ) -> list[ExpressionFlowStep]:
         steps: list[ExpressionFlowStep] = []
+        body_offsets = [0] + [m.start() + 1 for m in _RE_NEWLINE.finditer(body)]
 
         # 1. Parameter steps
         for p in params:
@@ -449,11 +488,11 @@ class _PhpSourceExtractor:
             )
 
         # 2. Assignment steps: $target = $source
-        assign_pattern = re.compile(r'\$([a-zA-Z0-9_]+)\s*=\s*([^;]+);')
-        for match in assign_pattern.finditer(body):
+        for match in _RE_ASSIGN_FLOW.finditer(body):
             target = f"${match.group(1)}"
             source = match.group(2).strip()
-            line = parent_line + body.count("\n", 0, match.start())
+            rel_line = bisect.bisect_right(body_offsets, match.start()) - 1
+            line = parent_line + rel_line
             loc = SourceLocation(file_path=self.file_path, line=line, column=1)
 
             step_kind = "call" if "(" in source and ")" in source else "assign"
@@ -467,10 +506,10 @@ class _PhpSourceExtractor:
             )
 
         # 3. Return steps: return $expr;
-        return_pattern = re.compile(r'\breturn\s+([^;]+);')
-        for match in return_pattern.finditer(body):
+        for match in _RE_RETURN_FLOW.finditer(body):
             ret_expr = match.group(1).strip()
-            line = parent_line + body.count("\n", 0, match.start())
+            rel_line = bisect.bisect_right(body_offsets, match.start()) - 1
+            line = parent_line + rel_line
             loc = SourceLocation(file_path=self.file_path, line=line, column=1)
             steps.append(
                 ExpressionFlowStep(
@@ -518,42 +557,40 @@ class PhpParserAdapter(ParserPort):
     """Outbound port adapter implementing high-performance PHP parsing for CodeModel."""
 
     def parse_source(self, source_code: str, file_path: str = "") -> NamespaceModel:
-        """Parse single PHP file into a domain NamespaceModel."""
+        if not source_code.strip():
+            return NamespaceModel(
+                name=self._derive_namespace_from_path(file_path),
+                file_path=file_path,
+            )
+
         extractor = _PhpSourceExtractor(file_path=file_path, source_code=source_code)
         extractor.extract()
 
         return NamespaceModel(
             name=extractor.namespace_name,
             file_path=file_path,
-            docstring="",
-            requires=extractor.requires,
             imports=extractor.imports,
+            requires=extractor.requires,
             protocols=extractor.protocols,
             records=extractor.records,
             functions=extractor.functions,
             states=extractor.states,
         )
 
-    def parse_sources(self, sources: dict[str, str], max_workers: int | None = None) -> CodeModel:
-        """Parse multiple PHP files into a unified domain CodeModel."""
+    def parse_sources(self, sources: dict[str, str]) -> CodeModel:
         model = CodeModel()
-        if not sources:
-            return model
+        max_workers = min(32, max(4, os.cpu_count() or 4))
 
-        if len(sources) > 3:
-            workers = max_workers or min(16, (os.cpu_count() or 4) * 2)
-            with ThreadPoolExecutor(max_workers=workers) as executor:
-                namespaces = list(
-                    executor.map(
-                        lambda item: self.parse_source(item[1], file_path=item[0]),
-                        sources.items(),
-                    )
-                )
-            for ns in namespaces:
-                model.add_namespace(ns)
-        else:
-            for path, code in sources.items():
-                ns = self.parse_source(code, file_path=path)
-                model.add_namespace(ns)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_path = {executor.submit(self.parse_source, code, path): path for path, code in sources.items()}
+            for future in future_to_path:
+                ns_model = future.result()
+                model.add_namespace(ns_model)
 
         return model
+
+    def _derive_namespace_from_path(self, file_path: str) -> str:
+        if not file_path:
+            return "global"
+        base = os.path.splitext(os.path.basename(file_path))[0]
+        return base or "global"
